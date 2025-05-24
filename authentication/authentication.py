@@ -1,30 +1,34 @@
+from sqlalchemy.orm import Session
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from passlib.context import CryptContext
 
-from authentication.users import USERS
+from database.models import User
+from database.connection_details import get_db  # Assuming you have a database session dependency
 
 security = HTTPBasic()
+pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
 
 
-def authenticate_user(credentials: HTTPBasicCredentials = Depends(security)):
-    # Check if username exists
+def authenticate_user(credentials: HTTPBasicCredentials = Depends(security), db: Session = Depends(get_db)):
+    # Check if username exists in the database
     username = credentials.username
     password = credentials.password
 
-    if username not in USERS:
+    user_info = db.query(User).filter(User.name == username).first()
+
+    if not user_info:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid credentials",
             headers={"WWW-Authenticate": "Basic"},
         )
 
-    # Verify password
-    pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
-    hashed_password = pwd_context.hash(password)
+    print(user_info)
+    print(user_info.password)
 
-    if pwd_context.verify(USERS[username], hashed_password):
-        print("Authentication failed: Password mismatch for username %s", username)
+    # Verify password
+    if not password == user_info.password:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid credentials",

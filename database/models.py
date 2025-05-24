@@ -10,3 +10,4 @@ class User(Base):
 
     id_user = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String, nullable=False)
+    password = Column(String, nullable=False)  # Hashed password column

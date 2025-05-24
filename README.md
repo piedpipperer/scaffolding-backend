@@ -43,11 +43,11 @@ Below are the steps to set up and test the application locally, as well as instr
 6. **Test the API endpoint**
   You can test the API using `curl`:
   ```bash
-  curl -X 'GET' \
+  curl -I -X 'GET' \
     'http://127.0.0.1:8000/user/users' \
     -H 'accept: text/html' \
-    -u "jordi:random_pass"
-  ```poetry run python ./database/db_initialization.py
+    -u "jordi:1234321"
+  ```
 
 ---
 
@@ -66,8 +66,7 @@ Feel free to add more details about the project in the sections above.
 
 3. configure aws-api-gateway to have this endpoint (or endpoints) that we uploaded configured.
 
-4. an rds posgres (idealy serverless) database must also be cofnigured somewhere on the internet so that the api comunicated with it 
+4. an rds posgres (idealy serverless) database must also be cofnigured somewhere on the internet so that the api comunicated with it
 (same vpc)
 
-5. 
-
+5.

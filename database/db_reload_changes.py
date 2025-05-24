@@ -9,8 +9,8 @@ def run_initialization():
 
     with database_session() as db:
 
-        jordi = User(name="Jordi")
-        helene = User(name="Helene")
+        jordi = User(name="jordi", password="1234321")  # Replace with a hashed password
+        helene = User(name="helene", password="1234321")
 
         db.add(jordi)
         db.add(helene)
