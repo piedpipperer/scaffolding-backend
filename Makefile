@@ -7,6 +7,7 @@ package_lambda:
 	poetry export --without-hashes --format=requirements.txt --output requirements_poetry.txt --no-interaction --without dev,debug
 	poetry run python -m pip install -r requirements_poetry.txt  -t "./lambda_deploy"
 	cp -r tiny_relappmidos.py lambda_deploy/
+	cp -r db_initialization.py lambda_deploy/
 	cp -r routes lambda_deploy/
 	cp -r database lambda_deploy/
 	cp -r authentication lambda_deploy/

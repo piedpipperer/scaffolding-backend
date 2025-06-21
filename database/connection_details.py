@@ -5,6 +5,8 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 from functools import lru_cache
 
+DATABASE_NAME = "relappmidos"
+
 
 @lru_cache()
 def get_database_url() -> str:
@@ -14,11 +16,11 @@ def get_database_url() -> str:
         database_url = (
             f"postgresql://{json_credents['username']}:"
             f"{json_credents['password']}@database-1.cluster-c37doy3ngxpp."
-            "eu-west-1.rds.amazonaws.com:5432/relappmidos"
+            f"eu-west-1.rds.amazonaws.com:5432/{DATABASE_NAME}"
         )
         # database had to be created from the query editor in aws-rds.
     else:
-        database_url = "postgresql://savana:password@localhost:5432/relappmidos"
+        database_url = f"postgresql://savana:password@localhost:5432/{DATABASE_NAME}"
 
     return database_url
 
@@ -29,7 +31,7 @@ def database_engine():
     Context manager for the SQLAlchemy engine.
     Ensures the engine is properly disposed of.
     """
-    engine = create_engine(get_database_url())
+    engine = create_engine(get_database_url(), connect_args={"connect_timeout": 2}, echo=True)
     try:
         yield engine
     finally:
