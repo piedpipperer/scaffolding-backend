@@ -1,13 +1,7 @@
-from sqlalchemy import Column, Integer, String
-from sqlalchemy.ext.declarative import declarative_base
+from sqlmodel import SQLModel, Field
 
 
-Base = declarative_base()
-
-
-class User(Base):
-    __tablename__ = "user"
-
-    id_user = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String, nullable=False)
-    password = Column(String, nullable=False)  # Hashed password column
+class User(SQLModel, table=True):
+    id_user: int = Field(default=None, primary_key=True)
+    name: str
+    password: str  # Hashed password field

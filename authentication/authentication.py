@@ -15,7 +15,7 @@ def authenticate_user(credentials: HTTPBasicCredentials = Depends(security), db:
     username = credentials.username
     password = credentials.password
 
-    user_info = db.query(User).filter(User.name == username).first()
+    user_info = db.query(User).filter(User.name == username).one_or_none()
 
     if not user_info:
         raise HTTPException(

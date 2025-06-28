@@ -49,10 +49,17 @@ Below are the steps to set up and test the application locally, as well as instr
     -u "jordi:1234321"
   ```
 
+# this should return the data.
+  ```bash
+  curl -X 'GET' \
+    'http://127.0.0.1:8000/user/users' \
+    -H 'accept: text/html' \
+    -u "jordi:1234321"
+  ```
 7. **test options endpoint**
   ```bash
  curl -i -X OPTIONS "http://127.0.0.1:8000/user/users"      -H "Origin: http://localhost:8000"      -H "Access-Control-Request-Method: GET"      -H "Access-Control-Request-Headers: Authorization, Content-Type"
-    -H 'accept: text/html'
+ -H 'accept: text/html'
   ```
 ---
 
@@ -205,5 +212,5 @@ aws ec2 describe-security-groups \
   curl -X GET "https://d63ojp7jad.execute-api.eu-west-1.amazonaws.com/prod/user/users"  \
   -u "jordi:1234321" \
   -H "Origin: http://localhost:8000"  \
-  -H "Content-Type: application/json" \
+  -H "Content-Type: application/json"
   ```

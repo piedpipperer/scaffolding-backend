@@ -14,12 +14,15 @@ psycopg2-binary = "^2.9.9"
 passlib = {extras = ["pbkdf2-sha256"], version = "^1.7.4"}
 boto3 = "^1.36.2"
 pydantic = "^2.0"
+sqlmodel = "^0.0.24"
+alembic = "^1.16.2"
 
 [tool.poetry.dev-dependencies]
 pre-commit = "^3.8.0"
 black = "^24.8.0"
 flake8 = "^7.1.1"
 ipykernel = "^6.29.5"
+openapi-spec-validator = "^0.7.1"
 
 [tool.poetry.group.debug.dependencies]
 uvicorn = "^0.19.0"
