@@ -1,38 +1,42 @@
-from sqlalchemy.orm import Session
-from fastapi import Depends, HTTPException, status
-from fastapi.security import HTTPBasic, HTTPBasicCredentials
-from passlib.context import CryptContext
+from authlib.integrations.starlette_client import OAuth
+import os
 
-from database.models import User
-from database.connection_details import get_db  # Assuming you have a database session dependency
+oauth = OAuth()
 
-security = HTTPBasic()
-pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
+# Set your client IDs and secrets via environment variables
+oauth.register(
+    name="google",
+    client_id=os.getenv("GOOGLE_CLIENT_ID"),
+    client_secret=os.getenv("GOOGLE_CLIENT_SECRET"),
+    server_metadata_url="https://accounts.google.com/.well-known/openid-configuration",
+    client_kwargs={"scope": "openid email profile"},
+)
 
 
-def authenticate_user(credentials: HTTPBasicCredentials = Depends(security), db: Session = Depends(get_db)):
-    # Check if username exists in the database
-    username = credentials.username
-    password = credentials.password
+# security = HTTPBasic()
+# pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
 
-    user_info = db.query(User).filter(User.name == username).one_or_none()
 
-    if not user_info:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid credentials",
-            headers={"WWW-Authenticate": "Basic"},
-        )
+# def authenticate_user(credentials: HTTPBasicCredentials = Depends(security), db: Session = Depends(get_db)):
+#     # Check if username exists in the database
+#     username = credentials.username
+#     password = credentials.password
 
-    print(user_info)
-    print(user_info.password)
+#     user_info = db.query(User).filter(User.name == username).one_or_none()
 
-    # Verify password
-    if not password == user_info.password:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid credentials",
-            headers={"WWW-Authenticate": "Basic"},
-        )
+#     if not user_info:
+#         raise HTTPException(
+#             status_code=status.HTTP_401_UNAUTHORIZED,
+#             detail="Invalid credentials",
+#             headers={"WWW-Authenticate": "Basic"},
+#         )
 
-    return username  # Return the authenticated username
+#     # Verify password
+#     if not password == user_info.password:
+#         raise HTTPException(
+#             status_code=status.HTTP_401_UNAUTHORIZED,
+#             detail="Invalid credentials",
+#             headers={"WWW-Authenticate": "Basic"},
+#         )
+
+#     return username  # Return the authenticated username
