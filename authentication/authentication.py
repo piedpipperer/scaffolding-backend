@@ -12,7 +12,6 @@ pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
 
 
 def authenticate_user(credentials: HTTPBasicCredentials = Depends(security), db: Session = Depends(get_db)):
-    # Check if username exists in the database
     username = credentials.username
     password = credentials.password
 
