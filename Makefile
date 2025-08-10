@@ -12,6 +12,8 @@ package_lambda:
 	cp -r database lambda_deploy/
 	cp -r authentication lambda_deploy/
 	cp -r config lambda_deploy/
+	cp -r alembic_scripts lambda_deploy/alembic_scripts
+	cp -r alembic.ini lambda_deploy/alembic.ini
 	cd lambda_deploy && zip -r ./deployment_package.zip .
 	pwd
 
