@@ -43,7 +43,10 @@ async def get_captcha_img(db: Session = Depends(get_db)):
     captcha_image.save(img_io, format="PNG")
     img_io.seek(0)
 
-    headers = {"X-Captcha-ID": str(captcha_id)}
+    headers = {
+        "X-Captcha-ID": str(captcha_id),
+        "Access-Control-Expose-Headers": "x-captcha-id",
+    }
     return Response(content=img_io.getvalue(), media_type="image/png", headers=headers)
 
 

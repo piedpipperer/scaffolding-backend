@@ -207,6 +207,7 @@ aws ec2 describe-security-groups \
  curl -i -X OPTIONS "https://d63ojp7jad.execute-api.eu-west-1.amazonaws.com/prod/user/users" -H "Origin: http://localhost:8000" -H "Access-Control-Request-Method: GET"  -H "Access-Control-Request-Headers: Authorization, Content-Type" -H 'accept: text/html'
   ```
 
+(this is for when user is created)
 8. **test only get enpoint**  (working)
   ```bash
   curl -X GET "https://d63ojp7jad.execute-api.eu-west-1.amazonaws.com/prod/user/users"  \
