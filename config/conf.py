@@ -1,7 +1,6 @@
 import json
 import os
-
-
+from dotenv import load_dotenv
 import boto3
 from botocore.exceptions import ClientError
 from functools import lru_cache
@@ -50,3 +49,13 @@ HEADERS = {
     "Access-Control-Allow-Headers": "authorization, Content-Type, X-Requested-With",
     # "Access-Control-Max-Age": "3600",  # Cache preflight response for 1 hour
 }
+
+# Load .env only once (usually from the project root)
+if not is_running_in_lambda():
+    load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), "..", ".env"))
+
+
+# Optionally expose environment variables through a helper
+def get_env_var(key: str, default=None):
+    """Get an environment variable with an optional default."""
+    return os.getenv(key, default)
