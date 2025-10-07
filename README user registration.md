@@ -52,3 +52,6 @@ curl -X POST http://127.0.0.1:8000/user/register \
         "captcha_id": "197b17b1-ed0c-48a3-9f3f-7c7181e961f7",
         "captcha_answer": "0506"
       }'
+
+
+Google authentication forced us to employ env variables, we configured t hem in the aws lambda manualy.

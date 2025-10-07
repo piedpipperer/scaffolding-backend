@@ -4,7 +4,8 @@ from sqlalchemy.orm import Session
 
 from authentication.authentication import authenticate_user
 from authentication.captcha_lib import get_captcha
-from authentication.user_context import hash_password
+from authentication.jwt import create_app_jwt
+from authentication.user_context import hash_password, verify_password
 from database.connection_details import get_db
 from database.models import CaptchaEntry, User
 from fastapi.responses import JSONResponse
@@ -13,7 +14,7 @@ from fastapi import HTTPException
 
 from fastapi.responses import Response
 from io import BytesIO
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 router = APIRouter(prefix="/user")
 
@@ -52,9 +53,11 @@ async def get_captcha_img(db: Session = Depends(get_db)):
 
 class RegisterRequest(BaseModel):
     name: str
+    email: str
     password: str
     captcha_id: str
     captcha_answer: str
+    auth_provider: str = Field(default="local")  # "local" | "google"
 
 
 # if we want to implmeent in future:
@@ -79,4 +82,11 @@ async def register_user(user_info: RegisterRequest, db: Session = Depends(get_db
     db.commit()
     db.refresh(new_user)
 
-    return {"message": "User created successfully", "user_id": new_user.id_user}
+    # pending the autologin: (jwt...)
+
+    return {
+        "access_token": create_app_jwt(new_user),
+        "message": "User created successfully",
+        "user_id": new_user.id_user,
+    }
+

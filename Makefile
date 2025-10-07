@@ -21,3 +21,6 @@ package_lambda:
 # in case of having an html to teste also the backend.
 launch_http:
 	cd ./static && python -m http.server 8001 && cd ..
+
+
+ # python -m http.server 8080

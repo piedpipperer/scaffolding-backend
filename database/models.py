@@ -7,9 +7,11 @@ from sqlmodel import SQLModel, Field
 
 class User(SQLModel, table=True):
     __tablename__ = "user"
-    id_user: Optional[int] = Field(default=None, primary_key=True)
+    id_user: int = Field(default=None, primary_key=True)
     name: str
-    password: str  # Hashed password field
+    email: str
+    password: Optional[str] = None  # empty means OAuth user
+    provider: Optional[str] = "local"  # "google" or "local"
 
 
 class CaptchaEntry(SQLModel, table=True):
