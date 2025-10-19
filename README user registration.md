@@ -55,3 +55,13 @@ curl -X POST http://127.0.0.1:8000/user/register \
 
 
 Google authentication forced us to employ env variables, we configured t hem in the aws lambda manualy.
+
+
+
+# now we also login, only if we have not registered:
+curl -X POST http://127.0.0.1:8000/user/login \
+  -H "Content-Type: application/json" \
+  -d '{
+        "email": "email@gmail.com",
+        "password": "password"
+      }'

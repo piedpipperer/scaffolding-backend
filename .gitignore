@@ -1,3 +1,4 @@
 /lambda_deploy
 /.aws-sam
 *pycache*
+dev.env
