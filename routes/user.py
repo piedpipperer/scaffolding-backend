@@ -89,3 +89,19 @@ async def register_user(user_info: RegisterRequest, db: Session = Depends(get_db
         "message": "User created successfully",
         "user_id": new_user.id_user,
     }
+
+
+@router.post("/login")
+async def login(req: "LoginRequest", db: Session = Depends(get_db)):
+    user = db.query(User).filter_by(email=req.email).first()
+    if not user:
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+
+    if not user.password:
+        raise HTTPException(status_code=403, detail="Password login disabled for Google users")
+
+    if not verify_password(req.password, user.password):
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+
+    token = create_app_jwt(user)
+    return {"access_token": token}
