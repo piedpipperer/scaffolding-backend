@@ -52,7 +52,7 @@ HEADERS = {
 
 # Load .env only once (usually from the project root)
 if not is_running_in_lambda():
-    load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), "..", ".env"))
+    load_dotenv(dotenv_path="./dev.env")
 
 
 # Optionally expose environment variables through a helper

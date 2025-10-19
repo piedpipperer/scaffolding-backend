@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from authentication.authentication import authenticate_user
 from authentication.captcha_lib import get_captcha
 from authentication.jwt import create_app_jwt
-from authentication.user_context import hash_password, verify_password
+from authentication.user_context import hash_password  # , verify_password
 from database.connection_details import get_db
 from database.models import CaptchaEntry, User
 from fastapi.responses import JSONResponse
@@ -70,13 +70,13 @@ async def register_user(user_info: RegisterRequest, db: Session = Depends(get_db
     if not captcha_entry or captcha_entry.answer.lower() != user_info.captcha_answer.lower():
         raise HTTPException(status_code=400, detail="Invalid or expired CAPTCHA")
 
-    existing_user = db.query(User).filter_by(name=user_info.name).first()
+    existing_user = db.query(User).filter_by(email=user_info.email).first()
     if existing_user:
         raise HTTPException(status_code=400, detail="User with this email or username already exists")
 
     hashed_pwd = hash_password(user_info.password)
 
-    new_user = User(name=user_info.name, password=hashed_pwd)
+    new_user = User(name=user_info.name, email=user_info.email, password=hashed_pwd)
 
     db.add(new_user)
     db.commit()
@@ -89,4 +89,3 @@ async def register_user(user_info: RegisterRequest, db: Session = Depends(get_db
         "message": "User created successfully",
         "user_id": new_user.id_user,
     }
-

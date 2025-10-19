@@ -9,7 +9,7 @@ class User(SQLModel, table=True):
     __tablename__ = "user"
     id_user: int = Field(default=None, primary_key=True)
     name: str
-    email: str
+    email: str = Field(unique=True)
     password: Optional[str] = None  # empty means OAuth user
     provider: Optional[str] = "local"  # "google" or "local"
 

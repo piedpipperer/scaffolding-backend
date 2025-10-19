@@ -20,7 +20,7 @@ def get_database_url() -> str:
         )
         # database had to be created from the query editor in aws-rds.
     else:
-        database_url = f"postgresql://savana:password@localhost:5432/{DATABASE_NAME}"
+        database_url = f"postgresql://jrojo:airflow@localhost:5432/{DATABASE_NAME}"
 
     return database_url
 
