@@ -64,3 +64,26 @@ document.getElementById("registerForm").addEventListener("submit", async (e) => 
         alert("Error -> check console");
     };
 });
+
+async function loginUser() {
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+
+    const res = await fetch(`${API_BASE}/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password })
+    });
+
+    showOutput(await res.json());
+}
+
+// Google callback (must be global)
+window.handleGoogleLogin = async (response) => {
+    const res = await fetch(`${API_BASE}/google/auth`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ credential: response.credential })
+    });
+    showOutput(await res.json());
+};

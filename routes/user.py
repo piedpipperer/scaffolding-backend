@@ -2,7 +2,7 @@ from uuid import uuid4
 from fastapi import APIRouter, Depends, Request
 from sqlalchemy.orm import Session
 
-from authentication.authentication import authenticate_user
+from authentication.authentication import get_current_user
 from authentication.captcha_lib import get_captcha
 from authentication.jwt import create_app_jwt
 from authentication.user_context import hash_password, verify_password
@@ -18,11 +18,23 @@ from pydantic import BaseModel, Field
 
 router = APIRouter(prefix="/user")
 
+# with basic authentication.
+# # this needs to be refactored, we only want to get the authenticated user info.
+# @router.get("/former_users", response_class=JSONResponse)
+# async def former_get_users(request: Request, email: str = Depends(authenticate_user), db: Session = Depends(get_db)):
+#     print(f"Attempting to query the database on endpoint {get_users.__name__} ...")
+#     users = db.query(User).all()
+#     print(f"Retrieved {len(users)} users.")
+
+#     users_list = [{"id_user": user.id_user, "name": user.name} for user in users]
+
+#     return users_list
+
 
 # this needs to be refactored, we only want to get the authenticated user info.
 @router.get("/users", response_class=JSONResponse)
-async def get_users(request: Request, username: str = Depends(authenticate_user), db: Session = Depends(get_db)):
-    print(f"Attempting to query the database on endpoint {get_users.__name__} ...")
+async def get_users(request: Request, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    print(f"Authenticated user: {current_user.email}")
     users = db.query(User).all()
     print(f"Retrieved {len(users)} users.")
 
