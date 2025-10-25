@@ -3,7 +3,7 @@ from fastapi.responses import JSONResponse
 from sqlalchemy import create_engine
 from config.conf import HEADERS, is_running_in_lambda
 from database.connection_details import get_database_url
-from routes import user
+from routes import google_auth, user
 from mangum import Mangum
 from sqlalchemy.orm import sessionmaker
 from contextlib import asynccontextmanager
@@ -66,6 +66,7 @@ async def handle_options(request: Request):
 handler = tell_me_handler(app)
 
 app.include_router(user.router)
+app.include_router(google_auth.router)
 # app.include_router(count_relappmidos.router)
 
 

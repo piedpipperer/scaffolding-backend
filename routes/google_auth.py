@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlmodel import Session
+from authentication.authentication import get_current_user
 from authentication.jwt import create_app_jwt
 from config.conf import get_env_var
 from database.models import User
@@ -13,16 +14,22 @@ GOOGLE_CLIENT_ID = get_env_var("GOOGLE_CLIENT_ID")
 router = APIRouter(prefix="/google")
 
 
+class GoogleAuthRequest(BaseModel):
+    credential: str
+
+
 @router.post("/auth")
-async def auth_google(credential: str, db: Session = Depends(get_db)):
+async def auth_google(payload: GoogleAuthRequest, db: Session = Depends(get_db)):
+
+    print("request received:", payload)
     try:
-        idinfo = id_token.verify_oauth2_token(credential, requests.Request(), GOOGLE_CLIENT_ID)
+        idinfo = id_token.verify_oauth2_token(payload.credential, requests.Request(), GOOGLE_CLIENT_ID)
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid Google token")
 
     email = idinfo.get("email")
     name = idinfo.get("name")
-    sub = idinfo.get("sub")  # Google's user unique ID
+    # sub = idinfo.get("sub")  # Google's user unique ID
 
     user = db.query(User).filter_by(email=email).first()
     if not user:
@@ -38,10 +45,41 @@ async def auth_google(credential: str, db: Session = Depends(get_db)):
             db.commit()
             db.refresh(user)
         elif user.provider == "local":
-            # Just ensure provider_id is up to date (defensive)
-            if not user.provider_id:
-                user.provider_id = sub
-                db.commit()
+            db.commit()
 
     # Create your app’s session or JWT for this user
+    print(
+        "gonna return",
+        {"access_token": create_app_jwt(user), "user": {"id": user.id_user, "name": user.name, "email": user.email}},
+    )
     return {"access_token": create_app_jwt(user), "user": {"id": user.id_user, "name": user.name, "email": user.email}}
+
+
+@router.post("/link/google")
+async def link_google(
+    payload: GoogleAuthRequest, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)
+):
+
+    idinfo = id_token.verify_oauth2_token(payload.credential, requests.Request(), GOOGLE_CLIENT_ID)
+    email = idinfo.get("email")
+
+    # sanity check: emails must match
+    if email != current_user.email:
+        raise HTTPException(status_code=400, detail="Google email does not match account email")
+
+    current_user.provider = "google"
+    db.commit()
+
+    return {"message": "Google account linked successfully"}
+
+
+@router.post("/unlink/google")
+async def unlink_google(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if current_user.provider != "google":
+        raise HTTPException(status_code=400, detail="No Google link found")
+
+    current_user.provider = "local"
+    current_user.provider_id = None
+    db.commit()
+
+    return {"message": "Google account unlinked"}

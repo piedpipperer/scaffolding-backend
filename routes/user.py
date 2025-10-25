@@ -115,6 +115,10 @@ async def login(req: LoginRequest, db: Session = Depends(get_db)):
 
     if not verify_password(req.password, user.password):
 
+        if user.provider == "google":
+            raise HTTPException(
+                status_code=403, detail="This account uses Google Sign-In. Please log in with Google instead."
+            )
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
     token = create_app_jwt(user)
