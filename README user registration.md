@@ -49,6 +49,45 @@ curl -X POST http://127.0.0.1:8000/user/register \
   -d '{
         "name": "helene",
         "password": "1234321",
-        "captcha_id": "197b17b1-ed0c-48a3-9f3f-7c7181e961f7",
-        "captcha_answer": "0506"
+        "email": "your_email@hotmail.com",
+        "captcha_id": "fa094ddd-d13d-40e6-97f3-c41506a76adc",
+        "captcha_answer": "6985"
       }'
+
+
+Google authentication forced us to employ env variables, we configured t hem in the aws lambda manualy.
+
+
+
+# now we also login, only if we have not registered:
+curl -X POST http://127.0.0.1:8000/user/login \
+  -H "Content-Type: application/json" \
+  -d '{
+        "email": "jobbedgasdgad@gmail.com",
+        "password": "hfdshsh"
+      }'
+
+
+after login/registering, we will get a token, to which we can continue using the user/users endpoint:
+
+
+# former way of getting:
+  curl -X GET "http://127.0.0.1:8000/user/former_users"  \
+  -u "jobbedgasdgad@gmail.com:shfshs" \
+  -H "Origin: http://localhost:8000"  \
+  -H "Content-Type: application/json"
+
+# authorization bearer:
+  curl -X GET \
+  http://127.0.0.1:8000/user/users \
+  -H "Origin: http://localhost:8000"  \
+  -H "accept: application/json" \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI4IiwiZW1haWwiOiJqb2JiaW5nLjMxNEBnbWFpbC5jb20iLCJuYW1lIjoiam9yZGkiLCJleHAiOjE3NjA5ODA3MDB9.PeBZqluB1hemx_Qjsdu21enCxwoFYZWfPedGnyhVEQ4"
+
+
+# authorization bearer got from google:
+  curl -X GET \
+  http://127.0.0.1:8000/user/users \
+  -H "Origin: http://localhost:8000"  \
+  -H "accept: application/json" \
+  -H "Authorization: Bearer gdagagadg"

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FastAPI Auth Test</title>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script src="./test.js" defer></script>
+  <style>
+    body { font-family: sans-serif; margin: 2rem; }
+    label { display: block; margin-top: 1rem; }
+    input { margin-top: .25rem; padding: .4rem; width: 250px; }
+    button { margin-top: 1rem; padding: .5rem 1rem; }
+    pre { background: #f4f4f4; padding: .75rem; border-radius: 5px; margin-top: 1rem; }
+  </style>
+</head>
+<body>
+  <h2>Test Register / Login</h2>
+
+  <label>Email <input type="email" id="email" value="user@example.com" /></label>
+  <label>Password <input type="password" id="password" value="1234" /></label>
+  <button onclick="registerUser()">Register</button>
+  <button onclick="loginUser()">Login</button>
+
+  <h3>Google Login</h3>
+  <!-- Google button -->
+  <div id="g_id_onload"
+       data-client_id="33848130467-rs4eq57d54pq9tsckspvs8b1cna794ha.apps.googleusercontent.com"
+       data-callback="handleGoogleLogin">
+  </div>
+  <div class="g_id_signin" data-type="standard"></div>
+
+  <h3>Response</h3>
+  <pre id="output"></pre>
+</body>
+</html>
