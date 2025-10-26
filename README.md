@@ -45,18 +45,19 @@ Below are the steps to set up and test the application locally, as well as instr
   ```bash
   curl -I -X 'GET' \
     'http://127.0.0.1:8000/user/users' \
-    -H 'accept: text/html' \
-    -u "jordi:1234321"
+    -H "Origin: http://localhost:8000"  \
+    -H "accept: application/json" \
+    -H "Authorization: Bearer gdagagadg"
   ```
 
-# this should return the data.
+7. **this should return the data.**
   ```bash
   curl -X 'GET' \
     'http://127.0.0.1:8000/user/users' \
     -H 'accept: text/html' \
     -u "jordi:1234321"
   ```
-7. **test options endpoint**
+8. **test options endpoint**
   ```bash
  curl -i -X OPTIONS "http://127.0.0.1:8000/user/users"      -H "Origin: http://localhost:8000"      -H "Access-Control-Request-Method: GET"      -H "Access-Control-Request-Headers: Authorization, Content-Type"
  -H 'accept: text/html'
@@ -88,9 +89,9 @@ Feel free to add more details about the project in the sections above.
 
 5.
 
-# regarding permissions in aws:
+## regarding permissions in aws:
 
-# to check current lambda permsissions:
+1. **to check current lambda permsissions:**
 aws lambda get-function-configuration \
   --function-name relappmidos-initialize_db \
   --profile jrojo \
@@ -98,7 +99,7 @@ aws lambda get-function-configuration \
 
 
 
-# to execute 1nce per lambda.
+2. **to execute 1nce per lambda.**
 aws lambda add-permission \
  --statement-id hola_hola_caracola \
  --action lambda:InvokeFunction \
@@ -124,40 +125,26 @@ aws iam create-policy \
     --policy-document file://aws/lambda-rds-policy.json \
     --profile jrojo
 
-# get role-policy:
+3. get role-policy:
 aws lambda get-function \
     --function-name tmp_dedicacio-initialize_db \
     --query "Configuration.Role" \
     --profile jrojo
 
-# not needed if already have an api going on.
-# attach rdsaccess policy to the lambda role.
+4. not needed if already have an api going on: attach rdsaccess policy to the lambda role.
 aws iam attach-role-policy \
     --role-name persones_endpoint-role-ev4upc5k \
     --policy-arn arn:aws:iam::617961504899:policy/LambdaRDSAccessPolicy \
     --profile jrojo
 
-
-# not needed if already have an api going on.
-aws iam list-attached-role-policies \
-    --role-name persones_endpoint-role-ev4upc5k \
-    --profile jrojo
-
-
-# not needed if already have an api going on.
-# let's now validate vpc:
+5. let's now validate vpc:
 aws lambda get-function-configuration \
     --function-name relappmidos \
     --query 'VpcConfig' \
     --profile jrojo
 
-# the previous lambda i created:
-aws lambda get-function-configuration \
-    --function-name tmp-dedicacio-get_personas \
-    --query 'VpcConfig' \
-    --profile jrojo
 
-# sth going on with sg permissions:
+6. sth going on with sg permissions:
 aws ec2 describe-security-groups \
   --group-ids 'sg-17995864' \
   --query 'SecurityGroups[*].IpPermissions' \
@@ -168,7 +155,7 @@ aws ec2 describe-security-groups \
   --query 'SecurityGroups[*].IpPermissions' \
   --profile jrojo
 
-# reachability analysis.
+7. reachability analysis.
 aws ec2 create-network-insights-path \
   --source relappmidos \
   --destination <RDS_ENI_ID> \
@@ -176,7 +163,7 @@ aws ec2 create-network-insights-path \
   --destination-port 5432 \
   --profile jrojo
 
-# FOR THAT, WE NEED THE ENIS:
+8. FOR THAT, WE NEED THE ENIS:
 aws ec2 describe-network-interfaces \
   --filters Name=description,Values="AWS Lambda VPC ENI*" \
             Name=group-id,Values=sg-17995864 \
@@ -184,7 +171,7 @@ aws ec2 describe-network-interfaces \
   --profile jrojo
 
 
-# sg permissions
+9. sg permissions
 aws ec2 describe-security-groups \
   --group-ids sg-17995864 \
   --profile jrojo \
@@ -200,18 +187,7 @@ aws ec2 describe-security-groups \
   --group-ids <your-lambda-sg> <your-rds-sg> \
   --profile jrojo
 
-#  once api deployed and working:
-
-7. **test options endpoint**
+10. **test options endpoint**
   ```bash
  curl -i -X OPTIONS "https://d63ojp7jad.execute-api.eu-west-1.amazonaws.com/prod/user/users" -H "Origin: http://localhost:8000" -H "Access-Control-Request-Method: GET"  -H "Access-Control-Request-Headers: Authorization, Content-Type" -H 'accept: text/html'
-  ```
-
-(this is for when user is created)
-8. **test only get enpoint**  (working)
-  ```bash
-  curl -X GET "https://d63ojp7jad.execute-api.eu-west-1.amazonaws.com/prod/user/users"  \
-  -u "jordi:1234321" \
-  -H "Origin: http://localhost:8000"  \
-  -H "Content-Type: application/json"
   ```
