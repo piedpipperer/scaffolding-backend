@@ -9,6 +9,7 @@ package_lambda:
 	cp -r tiny_relappmidos.py lambda_deploy/
 	cp -r db_initialization.py lambda_deploy/
 	cp -r routes lambda_deploy/
+	cp -r use_cases lambda_deploy/
 	cp -r database lambda_deploy/
 	cp -r authentication lambda_deploy/
 	cp -r config lambda_deploy/
