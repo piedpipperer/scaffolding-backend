@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 
 from authentication.authentication import get_current_user
 from authentication.captcha_lib import get_captcha
+from database.models import FacePartLick, AnimalFaceParts, get_total_points_for_user
 from authentication.jwt import create_app_jwt
 from authentication.user_context import hash_password, verify_password
 from database.connection_details import get_db
@@ -14,7 +15,9 @@ from fastapi import HTTPException
 
 from fastapi.responses import Response
 from io import BytesIO
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
+
+from use_cases.create_user import RegisterRequest, validate_user
 
 router = APIRouter(prefix="/user")
 
@@ -63,15 +66,6 @@ async def get_captcha_img(db: Session = Depends(get_db)):
     return Response(content=img_io.getvalue(), media_type="image/png", headers=headers)
 
 
-class RegisterRequest(BaseModel):
-    name: str
-    email: str
-    password: str
-    captcha_id: str
-    captcha_answer: str
-    auth_provider: str = Field(default="local")  # "local" | "google"
-
-
 # if we want to implmeent in future:
 # , dependencies=[Depends(RateLimiter(times=5, minutes=1))]
 @router.post("/register")
@@ -82,6 +76,8 @@ async def register_user(user_info: RegisterRequest, db: Session = Depends(get_db
     if not captcha_entry or captcha_entry.answer.lower() != user_info.captcha_answer.lower():
         raise HTTPException(status_code=400, detail="Invalid or expired CAPTCHA")
 
+    if not validate_user(user_info):
+        raise HTTPException(status_code=400, detail="Invalid user data")
     existing_user = db.query(User).filter_by(email=user_info.email).first()
     if existing_user:
         raise HTTPException(status_code=400, detail="User with this email or username already exists")
@@ -111,6 +107,7 @@ class LoginRequest(BaseModel):
 @router.post("/login")
 async def login(req: LoginRequest, db: Session = Depends(get_db)):
     user = db.query(User).filter_by(email=req.email).first()
+
     if not user:
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
@@ -118,6 +115,7 @@ async def login(req: LoginRequest, db: Session = Depends(get_db)):
         raise HTTPException(status_code=403, detail="Password login disabled for Google users")
 
     if not verify_password(req.password, user.password):
+
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
     token = create_app_jwt(user)
