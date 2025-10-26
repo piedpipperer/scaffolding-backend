@@ -91,3 +91,27 @@ after login/registering, we will get a token, to which we can continue using the
   -H "Origin: http://localhost:8000"  \
   -H "accept: application/json" \
   -H "Authorization: Bearer gdagagadg"
+
+
+# now we also login, only if we have not registered:
+curl -X POST http://127.0.0.1:8000/user/login \
+  -H "Content-Type: application/json" \
+  -d '{
+        "email": "test@test.com",
+        "password": "1234"
+      }'
+
+
+# options
+ curl -i -X OPTIONS "https://d63ojp7jad.execute-api.eu-west-1.amazonaws.com/prod/user/login"      -H "Origin: http://localhost:8000"      -H "Access-Control-Request-Method: POST"      -H "Access-Control-Request-Headers: Authorization, Content-Type"
+ -H 'accept: text/html'
+
+
+
+# now we also login, only if we have not registered:
+curl -X POST https://d63ojp7jad.execute-api.eu-west-1.amazonaws.com/prod/user/login \
+  -H "Content-Type: application/json" \
+  -d '{
+        "email": "test@test.com",
+        "password": "1234"
+      }'

@@ -14,7 +14,9 @@ from fastapi import HTTPException
 
 from fastapi.responses import Response
 from io import BytesIO
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
+
+from use_cases.create_user import RegisterRequest, validate_user
 
 router = APIRouter(prefix="/user")
 
@@ -63,15 +65,6 @@ async def get_captcha_img(db: Session = Depends(get_db)):
     return Response(content=img_io.getvalue(), media_type="image/png", headers=headers)
 
 
-class RegisterRequest(BaseModel):
-    name: str
-    email: str
-    password: str
-    captcha_id: str
-    captcha_answer: str
-    auth_provider: str = Field(default="local")  # "local" | "google"
-
-
 # if we want to implmeent in future:
 # , dependencies=[Depends(RateLimiter(times=5, minutes=1))]
 @router.post("/register")
@@ -82,6 +75,8 @@ async def register_user(user_info: RegisterRequest, db: Session = Depends(get_db
     if not captcha_entry or captcha_entry.answer.lower() != user_info.captcha_answer.lower():
         raise HTTPException(status_code=400, detail="Invalid or expired CAPTCHA")
 
+    if not validate_user(user_info):
+        raise HTTPException(status_code=400, detail="Invalid user data")
     existing_user = db.query(User).filter_by(email=user_info.email).first()
     if existing_user:
         raise HTTPException(status_code=400, detail="User with this email or username already exists")
@@ -111,6 +106,7 @@ class LoginRequest(BaseModel):
 @router.post("/login")
 async def login(req: LoginRequest, db: Session = Depends(get_db)):
     user = db.query(User).filter_by(email=req.email).first()
+
     if not user:
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
@@ -118,6 +114,7 @@ async def login(req: LoginRequest, db: Session = Depends(get_db)):
         raise HTTPException(status_code=403, detail="Password login disabled for Google users")
 
     if not verify_password(req.password, user.password):
+
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
     token = create_app_jwt(user)

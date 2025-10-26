@@ -1,5 +1,5 @@
 from contextlib import contextmanager
-from config.conf import get_db_secret, is_running_in_lambda
+from config.conf import get_db_secret, get_env_var, is_running_in_lambda
 
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
@@ -20,7 +20,7 @@ def get_database_url() -> str:
         )
         # database had to be created from the query editor in aws-rds.
     else:
-        database_url = f"postgresql://jrojo:airflow@localhost:5432/{DATABASE_NAME}"
+        database_url = f"postgresql://{get_env_var('PG_USER')}:{get_env_var('PG_PWD')}@localhost:5432/{DATABASE_NAME}"
 
     return database_url
 
