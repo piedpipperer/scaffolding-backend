@@ -1,6 +1,5 @@
 from fastapi import HTTPException
 
-from database.models import AnimalType
 
 from pydantic import BaseModel, Field
 import re
@@ -13,7 +12,6 @@ class RegisterRequest(BaseModel):
     captcha_answer: str
     email: str
     auth_provider: str = Field(default="local")  # "local" | "google"
-    user_type: AnimalType = AnimalType.human  # Default to human if not provided
 
 
 def validate_user(user_info: RegisterRequest):

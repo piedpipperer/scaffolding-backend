@@ -4,7 +4,6 @@ from sqlalchemy.orm import Session
 
 from authentication.authentication import get_current_user
 from authentication.captcha_lib import get_captcha
-from database.models import FacePartLick, AnimalFaceParts, get_total_points_for_user
 from authentication.jwt import create_app_jwt
 from authentication.user_context import hash_password, verify_password
 from database.connection_details import get_db
