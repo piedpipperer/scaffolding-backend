@@ -40,7 +40,7 @@ async def get_users(request: Request, current_user: User = Depends(get_current_u
     users = db.query(User).all()
     print(f"Retrieved {len(users)} users.")
 
-    users_list = [{"id_user": user.id_user, "name": user.name} for user in users]
+    users_list = [{"id_user": user.id_user, "name": user.name, "user_type": user.user_type} for user in users]
 
     return users_list
 
