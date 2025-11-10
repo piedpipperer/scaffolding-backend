@@ -8,6 +8,10 @@ from database.models import User
 from google.oauth2 import id_token
 from google.auth.transport import requests
 from database.connection_details import get_db
+from authentication.authentication import get_current_user
+import socket
+import ssl
+import urllib.request
 
 
 GOOGLE_CLIENT_ID = get_env_var("GOOGLE_CLIENT_ID")
@@ -18,14 +22,42 @@ class GoogleAuthRequest(BaseModel):
     credential: str
 
 
+def test_connectivity():
+    print("---- CONNECTIVITY TESTS ----")
+
+    # DNS test
+    ip = socket.gethostbyname("oauth2.googleapis.com")
+    print("DNS:", ip)
+
+    # TCP test
+    try:
+        s = socket.create_connection((ip, 443), timeout=5)
+        print("TCP: CONNECTED")
+        s.close()
+    except Exception as e:
+        print("TCP FAIL:", e)
+
+    # HTTPS test
+    try:
+        ctx = ssl.create_default_context()
+        with urllib.request.urlopen("https://oauth2.googleapis.com", timeout=5, context=ctx) as r:
+            print("HTTPS OK:", r.status)
+    except Exception as e:
+        print("HTTPS FAIL:", e)
+
+
 @router.post("/auth")
 async def auth_google(payload: GoogleAuthRequest, db: Session = Depends(get_db)):
 
     print("request received:", payload)
     try:
+        test_connectivity()
+        print("about to try call of google authorization", payload.credential, requests.Request(), GOOGLE_CLIENT_ID)
         idinfo = id_token.verify_oauth2_token(payload.credential, requests.Request(), GOOGLE_CLIENT_ID)
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid Google token")
+
+    print("got idinfo", idinfo)
 
     email = idinfo.get("email")
     name = idinfo.get("name")
@@ -48,11 +80,13 @@ async def auth_google(payload: GoogleAuthRequest, db: Session = Depends(get_db))
             db.commit()
 
     # Create your app’s session or JWT for this user
-    print(
-        "gonna return",
-        {"access_token": create_app_jwt(user), "user": {"id": user.id_user, "name": user.name, "email": user.email}},
-    )
-    return {"access_token": create_app_jwt(user), "user": {"id": user.id_user, "name": user.name, "email": user.email}}
+
+    google_auth_return = {
+        "access_token": create_app_jwt(user),
+        "user": {"id": user.id_user, "name": user.name, "email": user.email},
+    }
+    print("returning:", google_auth_return)
+    return google_auth_return
 
 
 @router.post("/link/google")

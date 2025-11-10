@@ -1,89 +1,62 @@
-const API_BASE = "http://localhost:8000"; // adjust to your FastAPI URL
+# const API_BASE = "http://localhost:8000"; // adjust to your FastAPI URL
 
+const API_BASE_URL = "https://7klega2ek2.execute-api.eu-west-1.amazonaws.com/prod";
 
-const loadCaptcha = async () => {
+export async function fetchAndDisplayCaptcha(captchaImage) {
     try {
-        const response = await fetch(`${API_BASE}/user/captcha`);
-        captchaId = response.headers.get("x-captcha-id");
-        const blob = await response.blob();
-        const captchaImage = document.getElementById("captchaImage");
-        if (captchaImage.src && captchaImage.src.startsWith("blob:")) {
-            URL.revokeObjectURL(captchaImage.src);
+        const response = await fetch(`${API_BASE_URL}/user/captcha`);
+        if (!response.ok) {
+            throw new Error(`Failed to fetch captcha: ${response.statusText}`);
         }
-        captchaImage.src = URL.createObjectURL(blob);
+        const data = await response.json();
+
+        captchaImage.src = `data:image/png;base64,${data.image_base64}`;
+        captchaImage.alt = "CAPTCHA Image";
+        return data.captcha_id;
     } catch (error) {
-        console.error("Error loading captcha:", error);
+        console.error("Error fetching CAPTCHA:", error);
+        captchaImage.alt = "Failed to load CAPTCHA. Please refresh.";
+        return null;
     }
 }
 
-loadCaptcha();
+export async function handleRegistration(event, captchaId) {
+    event.preventDefault();
+    const registerForm = event.target;
+    const formData = new FormData(registerForm);
+    const name = formData.get("name");
+    const email = formData.get("email");
+    const password = formData.get("password");
+    const captchaAnswer = formData.get("captcha_answer");
 
-document.getElementById("registerForm").addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    const registrationData = {
-        email: formData.get("email").trim().toLowerCase(),
-        name: formData.get("username").trim().toLowerCase(),
-        password: formData.get("password"),
+    const data = {
+        name,
+        email,
+        password,
         captcha_id: captchaId,
-        captcha_answer: formData.get("captcha"),
+        captcha_answer: captchaAnswer
     };
+
     try {
-        const response = await fetch(`${API_BASE}/user/register`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(registrationData),
+        const response = await fetch(`${API_BASE_URL}/user/register`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
         });
 
         if (!response.ok) {
-            let errorData;
-            try {
-                errorData = await response.json();
-            } catch {
-                errorData = {};
-            }
-            let alertMessage;
-            if (response.status === 400) {
-                if (errorData.detail) {
-                    if (typeof errorData.detail === "string") {
-                        alertMessage = errorData.detail;
-                    }
-                } else {
-                    alertMessage = "Registration failed. Please check your input and try again.";
-                }
-            } else {
-                alertMessage = "Something went wrong. Please try again later.";
-            }
-            alert(alertMessage);
-            return;
-        } else {
-            alert("SUCCESS!");
-        };
+            const errorData = await response.json();
+            throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        console.log('Success:', result);
+        alert('Registration successful!');
+        // Redirect or update UI
     } catch (error) {
-        console.error('Network / Fetch error :', error);
-        alert("Error -> check console");
-    };
-});
-
-async function loginUser() {
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
-
-    const res = await fetch(`${API_BASE}/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password })
-    });
-
-    showOutput(await res.json());
+        console.error('Error:', error);
+        alert(`Registration failed: ${error.message}`);
+    }
 }
-
-// Google callback (must be global)
-window.handleGoogleLogin = async (response) => {
-    const res = await fetch(`${API_BASE}/google/auth`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ credential: response.credential })
-    });
-    showOutput(await res.json());
-};

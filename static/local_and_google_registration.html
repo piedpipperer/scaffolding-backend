@@ -9,29 +9,55 @@
     <title>Register</title>
 </head>
 
-<script src="./test.js" defer></script>
+
 
 
 <body>
     <form id="registerForm">
-        <input type="text" name="username" placeholder="Username" required>
+        <input type="text" name="name" placeholder="Username" required>
         <input type="email" name="email" placeholder="email" required>
         <input type="password" name="password" placeholder="Password" required>
 
         <img id="captchaImage" alt="Captcha loading...">
 
-        <input type="text" name="captcha" placeholder="Enter captcha" required>
+        <input type="text" id="captcha_answer" name="captcha_answer" placeholder="Enter captcha" required>
         </select>
 
         <button type="submit" tabindex="0">Register</button>
 
+
+
         <h3>4️⃣ Google Login</h3>
+
+        <!-- Loads One Tap login -->
         <div id="g_id_onload" data-client_id="33848130467-rs4eq57d54pq9tsckspvs8b1cna794ha.apps.googleusercontent.com"
             data-callback="handleGoogleLogin"></div>
-        <div class="g_id_signin" data-type="standard"></div>
 
+        <!-- Standard Google button -->
+        <div class="g_id_signin" data-type="standard" data-size="large" data-theme="outline"></div>
+
+        <!-- Optional buttons for linking/unlinking -->
+        <button onclick="linkGoogle()">Link Google Account</button>
+        <button onclick="unlinkGoogle()">Unlink Google Account</button>
 
     </form>
+
+    <button onclick="fetchUsers()">Get Users</button>
+<script type="module">
+    import { fetchAndDisplayCaptcha, handleRegistration } from './test.js';
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const captchaImage = document.getElementById("captchaImage");
+        const registerForm = document.getElementById("registerForm");
+        let captchaId = null;
+
+        fetchAndDisplayCaptcha(captchaImage).then(id => {
+            captchaId = id;
+        });
+
+        registerForm.addEventListener("submit", (event) => handleRegistration(event, captchaId));
+    });
+</script>
 </body>
 
 
