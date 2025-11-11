@@ -4,14 +4,12 @@ from sqlmodel import Session
 from authentication.authentication import get_current_user
 from authentication.jwt import create_app_jwt
 from config.conf import get_env_var
+from config.connectivity import test_connectivity
 from database.models import User
 from google.oauth2 import id_token
 from google.auth.transport import requests
 from database.connection_details import get_db
 from authentication.authentication import get_current_user
-import socket
-import ssl
-import urllib.request
 
 
 GOOGLE_CLIENT_ID = get_env_var("GOOGLE_CLIENT_ID")
@@ -20,30 +18,6 @@ router = APIRouter(prefix="/google")
 
 class GoogleAuthRequest(BaseModel):
     credential: str
-
-
-def test_connectivity():
-    print("---- CONNECTIVITY TESTS ----")
-
-    # DNS test
-    ip = socket.gethostbyname("oauth2.googleapis.com")
-    print("DNS:", ip)
-
-    # TCP test
-    try:
-        s = socket.create_connection((ip, 443), timeout=5)
-        print("TCP: CONNECTED")
-        s.close()
-    except Exception as e:
-        print("TCP FAIL:", e)
-
-    # HTTPS test
-    try:
-        ctx = ssl.create_default_context()
-        with urllib.request.urlopen("https://oauth2.googleapis.com", timeout=5, context=ctx) as r:
-            print("HTTPS OK:", r.status)
-    except Exception as e:
-        print("HTTPS FAIL:", e)
 
 
 @router.post("/auth")
