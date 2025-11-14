@@ -1,10 +1,5 @@
 # api_gw.tf
 
-provider "aws" {
-  profile = "jrojo"
-  region  = "eu-west-1"
-}
-
 variable "lambda_function_arn" {
   description = "The ARN of the Lambda function."
   type        = string
@@ -100,6 +95,37 @@ resource "aws_api_gateway_integration_response" "proxy_options_200" {
   }
 }
 
+# --- /user Resource ---
+resource "aws_api_gateway_resource" "user_resource" {
+  rest_api_id = aws_api_gateway_rest_api.relappmidos.id
+  parent_id   = aws_api_gateway_rest_api.relappmidos.root_resource_id
+  path_part   = "user"
+}
+
+# --- /user/captcha Resource ---
+resource "aws_api_gateway_resource" "captcha_resource" {
+  rest_api_id = aws_api_gateway_rest_api.relappmidos.id
+  parent_id   = aws_api_gateway_resource.user_resource.id
+  path_part   = "captcha"
+}
+
+# --- GET Method for /user/captcha ---
+resource "aws_api_gateway_method" "captcha_get" {
+  rest_api_id   = aws_api_gateway_rest_api.relappmidos.id
+  resource_id   = aws_api_gateway_resource.captcha_resource.id
+  http_method   = "GET"
+  authorization = "NONE"
+}
+
+resource "aws_api_gateway_integration" "captcha_get_integration" {
+  rest_api_id = aws_api_gateway_rest_api.relappmidos.id
+  resource_id = aws_api_gateway_resource.captcha_resource.id
+  http_method = aws_api_gateway_method.captcha_get.http_method
+  type        = "AWS_PROXY"
+  integration_http_method = "POST" # Lambda proxy integration always uses POST
+  uri         = "arn:aws:apigateway:eu-west-1:lambda:path/2015-03-31/functions/${var.lambda_function_arn}/invocations"
+}
+
 # --- Deployment and Stage ---
 
 resource "aws_api_gateway_deployment" "relappmidos" {
@@ -114,6 +140,10 @@ resource "aws_api_gateway_deployment" "relappmidos" {
       aws_api_gateway_integration.proxy_options.id,
       aws_api_gateway_method_response.proxy_options_200.id,
       aws_api_gateway_integration_response.proxy_options_200.id,
+      aws_api_gateway_resource.user_resource.id,
+      aws_api_gateway_resource.captcha_resource.id,
+      aws_api_gateway_method.captcha_get.id,
+      aws_api_gateway_integration.captcha_get_integration.id,
     ]))
   }
 
@@ -164,4 +194,9 @@ resource "aws_iam_role_policy_attachment" "api_gateway_logging_policy" {
 
 resource "aws_api_gateway_account" "relappmidos" {
   cloudwatch_role_arn = aws_iam_role.api_gateway_logging_role.arn
+}
+
+output "invoke_url" {
+  description = "The invoke URL for the API Gateway stage."
+  value       = aws_api_gateway_stage.prod.invoke_url
 }

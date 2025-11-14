@@ -1,11 +1,5 @@
 # networking_infra.tf
 
-# Provider configuration
-provider "aws" {
-  profile = "jrojo" # Use the specified AWS CLI profile
-  region  = "eu-west-1" # Set the region to eu-west-1
-}
-
 # --- Variables ---
 variable "environment" {
   description = "The environment name (e.g., dev, prod)."

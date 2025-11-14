@@ -2,3 +2,4 @@
 /.aws-sam
 *pycache*
 dev.env
+/aws

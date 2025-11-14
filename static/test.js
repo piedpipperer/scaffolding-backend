@@ -1,6 +1,6 @@
-# const API_BASE = "http://localhost:8000"; // adjust to your FastAPI URL
+// const API_BASE = "http://localhost:8000"; // adjust to your FastAPI URL
 
-const API_BASE_URL = "https://7klega2ek2.execute-api.eu-west-1.amazonaws.com/prod";
+const API_BASE_URL = "https://d8ml27eov6.execute-api.eu-west-1.amazonaws.com/prod";
 
 export async function fetchAndDisplayCaptcha(captchaImage) {
     try {

@@ -15,8 +15,8 @@ def get_database_url() -> str:
         json_credents = get_db_secret()
         database_url = (
             f"postgresql://{json_credents['username']}:"
-            f"{json_credents['password']}@database-1.cluster-c37doy3ngxpp."
-            f"eu-west-1.rds.amazonaws.com:5432/{DATABASE_NAME}"
+            f"{json_credents['password']}@troubleshoot-db-cluster.cluster-c37doy3ngxpp.eu-west-1"
+            f".rds.amazonaws.com:5432/{DATABASE_NAME}"
         )
         # database had to be created from the query editor in aws-rds.
     else:

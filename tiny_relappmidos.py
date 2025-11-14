@@ -42,8 +42,7 @@ async def lifespan(app: FastAPI):
         print("Database engine disposed.")
 
 
-app = FastAPI(root_path="/prod" if is_running_in_lambda() else "", lifespan=lifespan)
-
+app = FastAPI(lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
