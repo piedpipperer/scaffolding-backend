@@ -70,5 +70,10 @@ app.include_router(google_auth.router)
 
 
 def lambda_handler(event, context):
-    print("normal print of event that we calling:", event)
+    # Extract the path from the event object for logging
+    # The structure of the event object can vary depending on the Lambda trigger.
+    # For API Gateway proxy integration, the path is usually in event['path'] or event['requestContext']['path']
+    path = event.get("path", "N/A")
+    http_method = event.get("httpMethod", "N/A")
+    print(f"Calling endpoint: {http_method} {path}")
     return handler(event, context)  # type: ignore

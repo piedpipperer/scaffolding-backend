@@ -38,9 +38,11 @@
 
     <div id="google-signin-container" style="display: none;">
         <h3>4️⃣ Google Login</h3>
+        <div id="google-error-message" style="color: red;"></div>
         <!-- Loads One Tap login -->
         <div id="g_id_onload" data-client_id="33848130467-rs4eq57d54pq9tsckspvs8b1cna794ha.apps.googleusercontent.com"
-            data-callback="handleGoogleLogin"></div>
+            data-callback="handleGoogleLogin"
+            data-error_callback="handleGoogleError"></div>
 
         <!-- Standard Google button -->
         <div class="g_id_signin" data-type="standard" data-size="large" data-theme="outline"></div>
@@ -58,10 +60,21 @@
         window.logout = logout;
         window.fetchUsers = fetchUsers;
         window.handleGoogleLogin = handleGoogleLogin;
+        window.handleGoogleError = handleGoogleError;
 
-        const API_BASE_URL = "https://d8ml27eov6.execute-api.eu-west-1.amazonaws.com/prod";
+        const API_BASE_URL = "https://jd6t3c006e.execute-api.eu-west-1.amazonaws.com/prod";
+
+        function handleGoogleError(error) {
+            console.error('Google Sign-In Initialization Error:', error);
+            const errorDiv = document.getElementById('google-error-message');
+            if (errorDiv) {
+                errorDiv.textContent = 'Google Sign-In failed to initialize. Please check the developer console for more details.';
+            }
+        }
+
         async function handleGoogleLogin(response, confirm_conversion = false) {
-            console.log("ID: " + response.credential);
+            console.log("Full Google response:", response);
+            console.log("Credential: " + response.credential);
 
             try {
                 const res = await fetch(`${API_BASE_URL}/google/auth`, {
@@ -97,6 +110,10 @@
             } catch (error) {
                 console.error('Google login error:', error);
                 alert(`Google login failed: ${error.message}`);
+                const errorDiv = document.getElementById('google-error-message');
+                if (errorDiv) {
+                    errorDiv.textContent = `Google login failed: ${error.message}`;
+                }
             }
         }
 
