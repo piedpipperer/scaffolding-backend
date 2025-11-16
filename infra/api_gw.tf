@@ -95,36 +95,23 @@ resource "aws_api_gateway_integration_response" "proxy_options_200" {
   }
 }
 
-# --- /user Resource ---
-resource "aws_api_gateway_resource" "user_resource" {
-  rest_api_id = aws_api_gateway_rest_api.relappmidos.id
-  parent_id   = aws_api_gateway_rest_api.relappmidos.root_resource_id
-  path_part   = "user"
-}
-
-# --- /user/captcha Resource ---
-resource "aws_api_gateway_resource" "captcha_resource" {
-  rest_api_id = aws_api_gateway_rest_api.relappmidos.id
-  parent_id   = aws_api_gateway_resource.user_resource.id
-  path_part   = "captcha"
-}
-
-# --- GET Method for /user/captcha ---
-resource "aws_api_gateway_method" "captcha_get" {
+# --- ANY method for root resource ---
+resource "aws_api_gateway_method" "root_any" {
   rest_api_id   = aws_api_gateway_rest_api.relappmidos.id
-  resource_id   = aws_api_gateway_resource.captcha_resource.id
-  http_method   = "GET"
+  resource_id   = aws_api_gateway_rest_api.relappmidos.root_resource_id
+  http_method   = "ANY"
   authorization = "NONE"
 }
 
-resource "aws_api_gateway_integration" "captcha_get_integration" {
-  rest_api_id = aws_api_gateway_rest_api.relappmidos.id
-  resource_id = aws_api_gateway_resource.captcha_resource.id
-  http_method = aws_api_gateway_method.captcha_get.http_method
-  type        = "AWS_PROXY"
-  integration_http_method = "POST" # Lambda proxy integration always uses POST
-  uri         = "arn:aws:apigateway:eu-west-1:lambda:path/2015-03-31/functions/${var.lambda_function_arn}/invocations"
+resource "aws_api_gateway_integration" "root_any" {
+  rest_api_id             = aws_api_gateway_rest_api.relappmidos.id
+  resource_id             = aws_api_gateway_rest_api.relappmidos.root_resource_id
+  http_method             = aws_api_gateway_method.root_any.http_method
+  type                    = "AWS_PROXY"
+  integration_http_method = "POST"
+  uri                     = "arn:aws:apigateway:eu-west-1:lambda:path/2015-03-31/functions/${var.lambda_function_arn}/invocations"
 }
+
 
 # --- Deployment and Stage ---
 
@@ -140,10 +127,8 @@ resource "aws_api_gateway_deployment" "relappmidos" {
       aws_api_gateway_integration.proxy_options.id,
       aws_api_gateway_method_response.proxy_options_200.id,
       aws_api_gateway_integration_response.proxy_options_200.id,
-      aws_api_gateway_resource.user_resource.id,
-      aws_api_gateway_resource.captcha_resource.id,
-      aws_api_gateway_method.captcha_get.id,
-      aws_api_gateway_integration.captcha_get_integration.id,
+      aws_api_gateway_method.root_any.id,
+      aws_api_gateway_integration.root_any.id
     ]))
   }
 
@@ -194,6 +179,18 @@ resource "aws_iam_role_policy_attachment" "api_gateway_logging_policy" {
 
 resource "aws_api_gateway_account" "relappmidos" {
   cloudwatch_role_arn = aws_iam_role.api_gateway_logging_role.arn
+}
+
+
+resource "aws_lambda_permission" "api_gw" {
+  statement_id  = "AllowAPIGatewayInvoke"
+  action        = "lambda:InvokeFunction"
+  function_name = var.lambda_function_arn
+  principal     = "apigateway.amazonaws.com"
+
+  # The "/*/*" portion grants access from any method on any resource
+  # within the API Gateway REST API.
+  source_arn = "${aws_api_gateway_rest_api.relappmidos.execution_arn}/*/*"
 }
 
 output "invoke_url" {

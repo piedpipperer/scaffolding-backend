@@ -19,6 +19,7 @@ package_lambda:
 	cd lambda_deploy && zip -r ./deployment_package.zip . && cd ..
 	find lambda_deploy -mindepth 1 ! -name 'deployment_package.zip' -delete
 	aws lambda update-function-code --function-name relappmidos2 --zip-file fileb://lambda_deploy/deployment_package.zip --profile jrojo
+	# aws lambda update-function-code --function-name relappmidos-initialize_db --zip-file fileb://lambda_deploy/deployment_package.zip --profile jrojo
 	pwd
 
 

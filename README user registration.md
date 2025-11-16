@@ -4,7 +4,7 @@ You can test the API using `curl`:
  -H 'accept: text/html'
 
 (local)
- curl -i -X OPTIONS "https://7klega2ek2.execute-api.eu-west-1.amazonaws.com/prod/user/register"      -H "Origin: http://localhost:8000"      -H "Access-Control-Request-Method: POST"      -H "Access-Control-Request-Headers: Authorization, Content-Type"  -H 'accept: text/html'
+ curl -i -X OPTIONS "https://d8ml27eov6.execute-api.eu-west-1.amazonaws.com/prod/user/register"      -H "Origin: http://localhost:8000"      -H "Access-Control-Request-Method: POST"      -H "Access-Control-Request-Headers: Authorization, Content-Type"  -H 'accept: text/html'
 
 
 
@@ -85,11 +85,11 @@ aws apigateway get-method \
 
 # for the captcha!
 
-curl -i -X OPTIONS https://7klega2ek2.execute-api.eu-west-1.amazonaws.com/prod/user/captcha   -H "Origin: http://localhost:8000"      -H "Access-Control-Request-Method: GET"      -H "Access-Control-Request-Headers: Authorization, Content-Type"
+curl -i -X OPTIONS https://d8ml27eov6.execute-api.eu-west-1.amazonaws.com/prod/user/captcha   -H "Origin: http://localhost:8000"      -H "Access-Control-Request-Method: GET"      -H "Access-Control-Request-Headers: Authorization, Content-Type"
  -H 'accept: text/html'
 
 
-curl -s https://7klega2ek2.execute-api.eu-west-1.amazonaws.com/prod/user/captcha | jq -r .image_base64 | base64 -d >
+curl -s https://d8ml27eov6.execute-api.eu-west-1.amazonaws.com/prod/user/captcha | jq -r .image_base64 | base64 -d >
   captcha.png \
   -D headers.txt
 
@@ -102,14 +102,14 @@ same with image: captcha.png -> 7479
 
 
 # CURL THE USER CREATION
-curl -X POST https://7klega2ek2.execute-api.eu-west-1.amazonaws.com/prod/user/register \
+curl -X POST https://d8ml27eov6.execute-api.eu-west-1.amazonaws.com/prod/user/register \
   -H "Content-Type: application/json" \
   -d '{
-        "name": "test",
-        "password": "#2ldskjañsajf1234",
-        "email": "test@hotmail.com",
-        "captcha_id": "35f8373c-13fb-489c-8dd8-7cd1cea4e3be",
-        "captcha_answer": "0212"
+        "name": "dsgsadga",
+        "password": "#2ldsKjañsajf1234",
+        "email": "test3@hotmail.com",
+        "captcha_id": "808555c1-b34a-402a-8342-1ebbed713fb1",
+        "captcha_answer": "8253"
       }'
 
 
@@ -118,11 +118,13 @@ Google authentication forced us to employ env variables, we configured t hem in 
 
 
 # now we also login, only if we have not registered:
-curl -X POST http://127.0.0.1:8000/user/login \
+curl -X POST  https://d8ml27eov6.execute-api.eu-west-1.amazonaws.com/prod/user/login \
   -H "Content-Type: application/json" \
   -d '{
-        "email": "jobbedgasdgad@gmail.com",
-        "password": "hfdshsh"
+        "email": "test@hotmail.com",
+        "password": "#2ldskjañsajf1234",
+        "captcha_id": "55677fc7-2f72-4ed6-b017-e68ffeab1703",
+        "captcha_answer": "0757"
       }'
 
 
@@ -137,10 +139,10 @@ after login/registering, we will get a token, to which we can continue using the
 
 # authorization bearer:
   curl -X GET \
-  http://127.0.0.1:8000/user/users \
+  https://d8ml27eov6.execute-api.eu-west-1.amazonaws.com/prod/user/users \
   -H "Origin: http://localhost:8000"  \
   -H "accept: application/json" \
-  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI4IiwiZW1haWwiOiJqb2JiaW5nLjMxNEBnbWFpbC5jb20iLCJuYW1lIjoiam9yZGkiLCJleHAiOjE3NjA5ODA3MDB9.PeBZqluB1hemx_Qjsdu21enCxwoFYZWfPedGnyhVEQ4"
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2OTQiLCJlbWFpbCI6InRlc3QyQGhvdG1haWwuY29tIiwibmFtZSI6ImRzZ3NhZGdhIiwiZXhwIjoxNzYyNzcxNjg3fQ.A5rw70QBck0uqrX0sLlOrHom6eJBhk22R9jhJOABq8k"
 
 
 # authorization bearer got from google:
@@ -152,24 +154,25 @@ after login/registering, we will get a token, to which we can continue using the
 
 
 # now we also login, only if we have not registered:
-curl -X POST http://127.0.0.1:8000/user/login \
+curl -X POST https://d8ml27eov6.execute-api.eu-west-1.amazonaws.com/prod/user/login \
   -H "Content-Type: application/json" \
   -d '{
-        "email": "test@test.com",
-        "password": "1234"
+        "password": "#2ldsKjañsajf1234",
+        "email": "test3@hotmail.com",
+        "captcha_id": "a26bad8a-8a7c-4a79-9527-b7c24a4867b2",
+        "captcha_answer": "4029"
       }'
 
 
 # options
 
- curl -i -X OPTIONS "https://7klega2ek2.execute-api.eu-west-1.amazonaws.com/prod/user/login"      -H "Origin: http://localhost:8000"      -H "Access-Control-Request-Method: POST"      -H "Access-Control-Request-Headers: Authorization, Content-Type"
+ curl -i -X OPTIONS "https://d8ml27eov6.execute-api.eu-west-1.amazonaws.com/prod/user/login"      -H "Origin: http://localhost:8000"      -H "Access-Control-Request-Method: POST"      -H "Access-Control-Request-Headers: Authorization, Content-Type"
  -H 'accept: text/html'
 
 
 
 # now we also login, only if we have not registered:
-
-curl -X POST https://7klega2ek2.execute-api.eu-west-1.amazonaws.com/prod/user/login \
+curl -X POST https://d8ml27eov6.execute-api.eu-west-1.amazonaws.com/prod/user/login \
   -H "Content-Type: application/json" \
   -d '{
         "email": "test@test.com",
@@ -181,11 +184,11 @@ curl -X POST https://7klega2ek2.execute-api.eu-west-1.amazonaws.com/prod/user/lo
 
 ## google
 
- curl -i -X OPTIONS "https://7klega2ek2.execute-api.eu-west-1.amazonaws.com/prod/google/auth"      -H "Origin: http://localhost:8000"      -H "Access-Control-Request-Method: POST"      -H "Access-Control-Request-Headers: Authorization, Content-Type"
+ curl -i -X OPTIONS "https://d8ml27eov6.execute-api.eu-west-1.amazonaws.com/prod/google/auth"      -H "Origin: http://localhost:8000"      -H "Access-Control-Request-Method: POST"      -H "Access-Control-Request-Headers: Authorization, Content-Type"
  -H 'accept: text/html'
 
 
-curl -X POST https://7klega2ek2.execute-api.eu-west-1.amazonaws.com/prod/google/auth \
+curl -X POST https://d8ml27eov6.execute-api.eu-west-1.amazonaws.com/prod/google/auth \
   -H "Content-Type: application/json" \
   -d '{
         "credential": "test"

@@ -233,6 +233,39 @@ resource "aws_security_group_rule" "lambda_egress_to_rds" {
   description              = "Allow traffic from Lambda SG to RDS"
 }
 
+
+# --- VPC Endpoint for Secrets Manager ---
+resource "aws_vpc_endpoint" "secrets_manager" {
+  vpc_id            = aws_vpc.main.id
+  service_name      = "com.amazonaws.${data.aws_region.current.name}.secretsmanager"
+  vpc_endpoint_type = "Interface"
+
+  private_dns_enabled = true
+
+  subnet_ids = aws_subnet.private[*].id
+
+  security_group_ids = [aws_security_group.lambda.id]
+
+  tags = {
+    Name        = "${var.environment}-secrets-manager-endpoint"
+    Environment = var.environment
+  }
+}
+
+
+resource "aws_security_group_rule" "lambda_to_secrets_manager_endpoint" {
+  type                     = "ingress"
+  from_port                = 443
+  to_port                  = 443
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.lambda.id
+  security_group_id        = aws_security_group.lambda.id # The endpoint uses the same SG
+  description              = "Allow Lambda to access Secrets Manager VPC endpoint"
+}
+
+# --- Data Source for current region ---
+data "aws_region" "current" {}
+
 # --- Outputs ---
 output "vpc_id" {
   description = "The ID of the newly created VPC."

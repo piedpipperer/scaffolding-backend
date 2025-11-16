@@ -43,21 +43,51 @@
     </form>
 
     <button onclick="fetchUsers()">Get Users</button>
-<script type="module">
-    import { fetchAndDisplayCaptcha, handleRegistration } from './test.js';
+    <script type="module">
+        import { fetchAndDisplayCaptcha, handleRegistration } from './test.js';
 
-    document.addEventListener("DOMContentLoaded", () => {
-        const captchaImage = document.getElementById("captchaImage");
-        const registerForm = document.getElementById("registerForm");
-        let captchaId = null;
+        document.addEventListener("DOMContentLoaded", () => {
+            const captchaImage = document.getElementById("captchaImage");
+            const registerForm = document.getElementById("registerForm");
+            let captchaId = null;
 
-        fetchAndDisplayCaptcha(captchaImage).then(id => {
-            captchaId = id;
+            fetchAndDisplayCaptcha(captchaImage).then(id => {
+                captchaId = id;
+            });
+
+            registerForm.addEventListener("submit", (event) => handleRegistration(event, captchaId));
         });
+    </script>
+    <script>
+        async function handleGoogleLogin(response) {
+            const API_BASE_URL = "https://d8ml27eov6.execute-api.eu-west-1.amazonaws.com/prod";
+            console.log("ID: " + response.credential);
 
-        registerForm.addEventListener("submit", (event) => handleRegistration(event, captchaId));
-    });
-</script>
+            try {
+                const res = await fetch(`${API_BASE_URL}/google/auth`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ credential: response.credential })
+                });
+
+                if (!res.ok) {
+                    const errorData = await res.json();
+                    throw new Error(errorData.detail || `HTTP error! status: ${res.status}`);
+                }
+
+                const data = await res.json();
+                console.log('Google login success:', data);
+                alert('Google login successful!');
+                // You can now use the access token from the response
+                // e.g., localStorage.setItem('accessToken', data.access_token);
+            } catch (error) {
+                console.error('Google login error:', error);
+                alert(`Google login failed: ${error.message}`);
+            }
+        }
+    </script>
 </body>
 
 
