@@ -1,5 +1,6 @@
-// const API_BASE = "http://localhost:8000"; // adjust to your FastAPI URL
 
+// const API_BASE = "http://localhost:8000"; // adjust to your FastAPI URL
+import { updateUIForLoggedIn } from './ui.js';
 const API_BASE_URL = "https://d8ml27eov6.execute-api.eu-west-1.amazonaws.com/prod";
 
 export async function fetchAndDisplayCaptcha(captchaImage) {
@@ -53,8 +54,9 @@ export async function handleRegistration(event, captchaId) {
 
         const result = await response.json();
         console.log('Success:', result);
-        alert('Registration successful!');
-        // Redirect or update UI
+        localStorage.setItem('accessToken', result.access_token);
+        localStorage.setItem('username', result.user.name);
+        updateUIForLoggedIn(result.user.name);
     } catch (error) {
         console.error('Error:', error);
         alert(`Registration failed: ${error.message}`);

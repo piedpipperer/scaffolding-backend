@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
+from typing import Optional
 from sqlmodel import Session
 from authentication.authentication import get_current_user
 from authentication.jwt import create_app_jwt
@@ -18,6 +19,7 @@ router = APIRouter(prefix="/google")
 
 class GoogleAuthRequest(BaseModel):
     credential: str
+    confirm_conversion: Optional[bool] = False
 
 
 @router.post("/auth")
@@ -25,7 +27,7 @@ async def auth_google(payload: GoogleAuthRequest, db: Session = Depends(get_db))
 
     print("request received:", payload)
     try:
-        test_connectivity()
+        # test_connectivity()
         print("about to try call of google authorization", payload.credential, requests.Request(), GOOGLE_CLIENT_ID)
         idinfo = id_token.verify_oauth2_token(payload.credential, requests.Request(), GOOGLE_CLIENT_ID)
     except ValueError:
@@ -45,19 +47,37 @@ async def auth_google(payload: GoogleAuthRequest, db: Session = Depends(get_db))
         db.refresh(user)
     else:
         # ✅ Existing user found, gonna override its config:
-        if user.provider == "google":
-            # Upgrade to Google-based login
-            user.provider = "google"
-            db.commit()
-            db.refresh(user)
-        elif user.provider == "local":
+        if user.provider == "local":
+            if payload.confirm_conversion:
+                # Convert to Google-based login
+                user.provider = "google"
+                user.password = None
+                db.commit()
+                db.refresh(user)
+            else:
+                return {
+                    "needs_confirmation": True,
+                    "user": {
+                        "id_user": user.id_user,
+                        "name": user.name if user.name else user.email,
+                        "email": user.email,
+                        "provider": user.provider,
+                    },
+                }
+        elif user.provider == "google":
+            # Just ensure provider_id is up to date (defensive)
             db.commit()
 
     # Create your app’s session or JWT for this user
 
     google_auth_return = {
         "access_token": create_app_jwt(user),
-        "user": {"id": user.id_user, "name": user.name, "email": user.email},
+        "user": {
+            "id": user.id_user,
+            "name": user.name if user.name else user.email,
+            "email": user.email,
+            "provider": user.provider,
+        },
     }
     print("returning:", google_auth_return)
     return google_auth_return
@@ -87,7 +107,6 @@ async def unlink_google(current_user: User = Depends(get_current_user), db: Sess
         raise HTTPException(status_code=400, detail="No Google link found")
 
     current_user.provider = "local"
-    current_user.provider_id = None
     db.commit()
 
     return {"message": "Google account unlinked"}

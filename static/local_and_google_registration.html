@@ -13,6 +13,8 @@
 
 
 <body>
+    <div id="user-profile"></div>
+    <div id="login-status"></div>
     <form id="registerForm">
         <input type="text" name="name" placeholder="Username" required>
         <input type="email" name="email" placeholder="email" required>
@@ -24,43 +26,41 @@
         </select>
 
         <button type="submit" tabindex="0">Register</button>
+        <a href="#" id="login-link">Already a user? Login</a>
+    </form>
 
+    <form id="loginForm" style="display: none;">
+        <input type="email" name="email" placeholder="email" required>
+        <input type="password" name="password" placeholder="Password" required>
+        <button type="submit" tabindex="0">Login</button>
+        <a href="#" id="register-link">Not a user? Register</a>
+    </form>
 
-
+    <div id="google-signin-container" style="display: none;">
         <h3>4️⃣ Google Login</h3>
-
         <!-- Loads One Tap login -->
         <div id="g_id_onload" data-client_id="33848130467-rs4eq57d54pq9tsckspvs8b1cna794ha.apps.googleusercontent.com"
             data-callback="handleGoogleLogin"></div>
 
         <!-- Standard Google button -->
         <div class="g_id_signin" data-type="standard" data-size="large" data-theme="outline"></div>
+    </div>
 
-        <!-- Optional buttons for linking/unlinking -->
-        <button onclick="linkGoogle()">Link Google Account</button>
-        <button onclick="unlinkGoogle()">Unlink Google Account</button>
 
-    </form>
+    <button id="logout-button" style="display: none;" onclick="logout()">Logout</button>
 
     <button onclick="fetchUsers()">Get Users</button>
     <script type="module">
         import { fetchAndDisplayCaptcha, handleRegistration } from './test.js';
+        import { updateUIForLoggedIn, logout, fetchUsers } from './ui.js';
+        import { handleLogin } from './login.js';
 
-        document.addEventListener("DOMContentLoaded", () => {
-            const captchaImage = document.getElementById("captchaImage");
-            const registerForm = document.getElementById("registerForm");
-            let captchaId = null;
+        window.logout = logout;
+        window.fetchUsers = fetchUsers;
+        window.handleGoogleLogin = handleGoogleLogin;
 
-            fetchAndDisplayCaptcha(captchaImage).then(id => {
-                captchaId = id;
-            });
-
-            registerForm.addEventListener("submit", (event) => handleRegistration(event, captchaId));
-        });
-    </script>
-    <script>
-        async function handleGoogleLogin(response) {
-            const API_BASE_URL = "https://d8ml27eov6.execute-api.eu-west-1.amazonaws.com/prod";
+        const API_BASE_URL = "https://d8ml27eov6.execute-api.eu-west-1.amazonaws.com/prod";
+        async function handleGoogleLogin(response, confirm_conversion = false) {
             console.log("ID: " + response.credential);
 
             try {
@@ -69,7 +69,10 @@
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ credential: response.credential })
+                    body: JSON.stringify({
+                        credential: response.credential,
+                        confirm_conversion: confirm_conversion
+                    })
                 });
 
                 if (!res.ok) {
@@ -78,15 +81,71 @@
                 }
 
                 const data = await res.json();
+
+                if (data.needs_confirmation) {
+                    if (confirm("This will convert your account to a Google account. You will no longer be able to log in with a password. Are you sure?")) {
+                        handleGoogleLogin(response, true);
+                    }
+                    return;
+                }
+
                 console.log('Google login success:', data);
-                alert('Google login successful!');
-                // You can now use the access token from the response
-                // e.g., localStorage.setItem('accessToken', data.access_token);
+                localStorage.setItem('accessToken', data.access_token);
+                localStorage.setItem('username', data.user.name);
+                localStorage.setItem('provider', data.user.provider);
+                updateUIForLoggedIn(data.user.name);
             } catch (error) {
                 console.error('Google login error:', error);
                 alert(`Google login failed: ${error.message}`);
             }
         }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const accessToken = localStorage.getItem('accessToken');
+            const username = localStorage.getItem('username');
+            if (accessToken && username) {
+                updateUIForLoggedIn(username);
+            } else {
+                document.querySelector('button[onclick="fetchUsers()"]').style.display = 'none';
+                const captchaImage = document.getElementById("captchaImage");
+                const registerForm = document.getElementById("registerForm");
+                const loginForm = document.getElementById("loginForm");
+                const loginLink = document.getElementById("login-link");
+                const registerLink = document.getElementById("register-link");
+                const googleSignInContainer = document.getElementById('google-signin-container');
+                let captchaId = null;
+
+                // Show Google Sign-In container by default on initial load if not logged in
+                if (googleSignInContainer) {
+                    googleSignInContainer.style.display = "block";
+                }
+
+                fetchAndDisplayCaptcha(captchaImage).then(id => {
+                    captchaId = id;
+                });
+
+                registerForm.addEventListener("submit", (event) => handleRegistration(event, captchaId));
+                loginForm.addEventListener("submit", handleLogin);
+
+                loginLink.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    registerForm.style.display = "none";
+                    loginForm.style.display = "block";
+                    if (googleSignInContainer) {
+                        googleSignInContainer.style.display = "none";
+                    }
+                });
+
+                registerLink.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    loginForm.style.display = "none";
+                    registerForm.style.display = "block";
+                    if (googleSignInContainer) {
+                        googleSignInContainer.style.display = "block";
+                    }
+                });
+            }
+        });
     </script>
 </body>
 

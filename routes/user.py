@@ -95,7 +95,7 @@ async def register_user(user_info: RegisterRequest, db: Session = Depends(get_db
     return {
         "access_token": create_app_jwt(new_user),
         "message": "User created successfully",
-        "user_id": new_user.id_user,
+        "user": {"id_user": new_user.id_user, "name": new_user.name, "email": new_user.email},
     }
 
 
@@ -145,4 +145,12 @@ async def login(req: LoginRequest, db: Session = Depends(get_db)):
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
     token = create_app_jwt(user)
-    return {"access_token": token}
+    return {
+        "access_token": token,
+        "user": {
+            "id_user": user.id_user,
+            "name": user.name if user.name else user.email,
+            "email": user.email,
+            "provider": user.provider,
+        },
+    }

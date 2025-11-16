@@ -15,7 +15,8 @@ def is_running_in_lambda():
 @lru_cache()
 def get_db_secret():
     secret_name = "troubleshoot/rds/credentials"
-    # arn: arn:aws:secretsmanager:eu-west-1:617961504899:secret:troubleshoot/rds/credentials-lQ5lkD
+    # arn of the secret to login:
+    # arn:aws:secretsmanager:eu-west-1:617961504899:secret:troubleshoot/rds/credentials-lQ5lkD
     region_name = "eu-west-1"
 
     # Create a Secrets Manager client

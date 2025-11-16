@@ -15,7 +15,7 @@ def create_app_jwt(user: User) -> str:
     payload = {
         "sub": str(user.id_user),
         "email": user.email,
-        "name": user.name,
+        "name": user.name if user.name else user.email,
         "exp": datetime.utcnow() + timedelta(minutes=JWT_EXPIRE_MINUTES),
     }
     token = jwt.encode(payload, JWT_SECRET_KEY, algorithm=JWT_ALGORITHM)
