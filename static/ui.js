@@ -1,3 +1,4 @@
+
 export function updateUIForLoggedIn(username) {
     document.getElementById('registerForm').style.display = 'none';
     document.getElementById('loginForm').style.display = 'none';
