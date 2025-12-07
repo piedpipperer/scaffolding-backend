@@ -4,7 +4,7 @@ You can test the API using `curl`:
  -H 'accept: text/html'
 
 (local)
- curl -i -X OPTIONS "https://d8ml27eov6.execute-api.eu-west-1.amazonaws.com/prod/user/register"      -H "Origin: http://localhost:8000"      -H "Access-Control-Request-Method: POST"      -H "Access-Control-Request-Headers: Authorization, Content-Type"  -H 'accept: text/html'
+ curl -i -X OPTIONS "https://jd6t3c006e.execute-api.eu-west-1.amazonaws.com/prod/user/register"      -H "Origin: http://localhost:8000"      -H "Access-Control-Request-Method: POST"      -H "Access-Control-Request-Headers: Authorization, Content-Type"  -H 'accept: text/html'
 
 
 
@@ -85,13 +85,13 @@ aws apigateway get-method \
 
 # for the captcha!
 
-curl -i -X OPTIONS https://d8ml27eov6.execute-api.eu-west-1.amazonaws.com/prod/user/captcha   -H "Origin: http://localhost:8000"      -H "Access-Control-Request-Method: GET"      -H "Access-Control-Request-Headers: Authorization, Content-Type"
+curl -i -X OPTIONS  
+
+user/captcha   -H "Origin: http://localhost:5501"      -H "Access-Control-Request-Method: GET"      -H "Access-Control-Request-Headers: Authorization, Content-Type"
  -H 'accept: text/html'
 
 
-curl -s https://d8ml27eov6.execute-api.eu-west-1.amazonaws.com/prod/user/captcha | jq -r .image_base64 | base64 -d >
-  captcha.png \
-  -D headers.txt
+curl -s https://jd6t3c006e.execute-api.eu-west-1.amazonaws.com/prod/user/captcha | jq -r .image_base64 | base64 -d > captcha.png  -D headers.txt
 
 # get headers to capture captcha id:
 cat headers.txt | grep X-captcha-ID
@@ -102,7 +102,7 @@ same with image: captcha.png -> 7479
 
 
 # CURL THE USER CREATION
-curl -X POST https://d8ml27eov6.execute-api.eu-west-1.amazonaws.com/prod/user/register \
+curl -X POST https://jd6t3c006e.execute-api.eu-west-1.amazonaws.com/prod/user/register \
   -H "Content-Type: application/json" \
   -d '{
         "name": "dsgsadga",
@@ -118,7 +118,7 @@ Google authentication forced us to employ env variables, we configured t hem in 
 
 
 # now we also login, only if we have not registered:
-curl -X POST  https://d8ml27eov6.execute-api.eu-west-1.amazonaws.com/prod/user/login \
+curl -X POST  https://jd6t3c006e.execute-api.eu-west-1.amazonaws.com/prod/user/login \
   -H "Content-Type: application/json" \
   -d '{
         "email": "test@hotmail.com",
@@ -139,7 +139,7 @@ after login/registering, we will get a token, to which we can continue using the
 
 # authorization bearer:
   curl -X GET \
-  https://d8ml27eov6.execute-api.eu-west-1.amazonaws.com/prod/user/users \
+  https://jd6t3c006e.execute-api.eu-west-1.amazonaws.com/prod/user/users \
   -H "Origin: http://localhost:8000"  \
   -H "accept: application/json" \
   -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2OTQiLCJlbWFpbCI6InRlc3QyQGhvdG1haWwuY29tIiwibmFtZSI6ImRzZ3NhZGdhIiwiZXhwIjoxNzYyNzcxNjg3fQ.A5rw70QBck0uqrX0sLlOrHom6eJBhk22R9jhJOABq8k"
@@ -154,7 +154,7 @@ after login/registering, we will get a token, to which we can continue using the
 
 
 # now we also login, only if we have not registered:
-curl -X POST https://d8ml27eov6.execute-api.eu-west-1.amazonaws.com/prod/user/login \
+curl -X POST https://jd6t3c006e.execute-api.eu-west-1.amazonaws.com/prod/user/login \
   -H "Content-Type: application/json" \
   -d '{
         "password": "#2ldsKjañsajf1234",
@@ -165,14 +165,13 @@ curl -X POST https://d8ml27eov6.execute-api.eu-west-1.amazonaws.com/prod/user/lo
 
 
 # options
-
- curl -i -X OPTIONS "https://d8ml27eov6.execute-api.eu-west-1.amazonaws.com/prod/user/login"      -H "Origin: http://localhost:8000"      -H "Access-Control-Request-Method: POST"      -H "Access-Control-Request-Headers: Authorization, Content-Type"
+ curl -i -X OPTIONS "https://jd6t3c006e.execute-api.eu-west-1.amazonaws.com/prod/user/login"      -H "Origin: http://localhost:8000"      -H "Access-Control-Request-Method: POST"      -H "Access-Control-Request-Headers: Authorization, Content-Type"
  -H 'accept: text/html'
 
 
 
 # now we also login, only if we have not registered:
-curl -X POST https://d8ml27eov6.execute-api.eu-west-1.amazonaws.com/prod/user/login \
+curl -X POST https://jd6t3c006e.execute-api.eu-west-1.amazonaws.com/prod/user/login \
   -H "Content-Type: application/json" \
   -d '{
         "email": "test@test.com",
@@ -184,11 +183,11 @@ curl -X POST https://d8ml27eov6.execute-api.eu-west-1.amazonaws.com/prod/user/lo
 
 ## google
 
- curl -i -X OPTIONS "https://d8ml27eov6.execute-api.eu-west-1.amazonaws.com/prod/google/auth"      -H "Origin: http://localhost:8000"      -H "Access-Control-Request-Method: POST"      -H "Access-Control-Request-Headers: Authorization, Content-Type"
+ curl -i -X OPTIONS "https://jd6t3c006e.execute-api.eu-west-1.amazonaws.com/prod/google/auth"      -H "Origin: http://localhost:8000"      -H "Access-Control-Request-Method: POST"      -H "Access-Control-Request-Headers: Authorization, Content-Type"
  -H 'accept: text/html'
 
 
-curl -X POST https://d8ml27eov6.execute-api.eu-west-1.amazonaws.com/prod/google/auth \
+curl -X POST https://jd6t3c006e.execute-api.eu-west-1.amazonaws.com/prod/google/auth \
   -H "Content-Type: application/json" \
   -d '{
         "credential": "test"

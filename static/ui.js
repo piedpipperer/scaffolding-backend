@@ -1,5 +1,3 @@
-const API_BASE_URL = "https://jd6t3c006e.execute-api.eu-west-1.amazonaws.com/prod";
-
 export function updateUIForLoggedIn(username) {
     document.getElementById('registerForm').style.display = 'none';
     document.getElementById('loginForm').style.display = 'none';

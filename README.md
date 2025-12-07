@@ -201,13 +201,13 @@ aws ec2 describe-security-groups \
 
 10. **test options endpoint**
   ```bash
- curl -i -X OPTIONS "https://d8ml27eov6.execute-api.eu-west-1.amazonaws.com/prod/user/users" -H "Origin: http://localhost:8000" -H "Access-Control-Request-Method: GET"  -H "Access-Control-Request-Headers: Authorization, Content-Type" -H 'accept: text/html'
+ curl -i -X OPTIONS "https://jd6t3c006e.execute-api.eu-west-1.amazonaws.com/prod/user/users" -H "Origin: http://localhost:8000" -H "Access-Control-Request-Method: GET"  -H "Access-Control-Request-Headers: Authorization, Content-Type" -H 'accept: text/html'
   ```
 
 (this is for when user is created)
 8. **test only get enpoint**  (working)
   ```bash
-  curl -X GET "https://d8ml27eov6.execute-api.eu-west-1.amazonaws.com/prod/user/users"  \
+  curl -X GET "https://jd6t3c006e.execute-api.eu-west-1.amazonaws.com/prod/user/users"  \
   -u "jordi:1234321" \
   -H "Origin: http://localhost:8000"  \
   -H "Content-Type: application/json"

@@ -1,7 +1,5 @@
 import { updateUIForLoggedIn } from './ui.js';
 
-const API_BASE_URL = "https://jd6t3c006e.execute-api.eu-west-1.amazonaws.com/prod";
-
 export async function handleLogin(event) {
     event.preventDefault();
     const loginForm = event.target;

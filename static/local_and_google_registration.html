@@ -52,6 +52,7 @@
     <button id="logout-button" style="display: none;" onclick="logout()">Logout</button>
 
     <button onclick="fetchUsers()">Get Users</button>
+    <script src="env.js"></script>
     <script type="module">
         import { fetchAndDisplayCaptcha, handleRegistration } from './test.js';
         import { updateUIForLoggedIn, logout, fetchUsers } from './ui.js';
@@ -61,8 +62,6 @@
         window.fetchUsers = fetchUsers;
         window.handleGoogleLogin = handleGoogleLogin;
         window.handleGoogleError = handleGoogleError;
-
-        const API_BASE_URL = "https://jd6t3c006e.execute-api.eu-west-1.amazonaws.com/prod";
 
         function handleGoogleError(error) {
             console.error('Google Sign-In Initialization Error:', error);
