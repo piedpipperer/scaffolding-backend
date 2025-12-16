@@ -9,12 +9,17 @@ package_lambda:
 	cp -r tiny_relappmidos.py lambda_deploy/
 	cp -r db_initialization.py lambda_deploy/
 	cp -r routes lambda_deploy/
+	cp -r use_cases lambda_deploy/
 	cp -r database lambda_deploy/
 	cp -r authentication lambda_deploy/
 	cp -r config lambda_deploy/
 	cp -r alembic_scripts lambda_deploy/alembic_scripts
 	cp -r alembic.ini lambda_deploy/alembic.ini
 	cd lambda_deploy && zip -r ./deployment_package.zip .
+	cd lambda_deploy && zip -r ./deployment_package.zip . && cd ..
+	find lambda_deploy -mindepth 1 ! -name 'deployment_package.zip' -delete
+	aws lambda update-function-code --function-name relappmidos2 --zip-file fileb://lambda_deploy/deployment_package.zip --profile jrojo
+	# aws lambda update-function-code --function-name relappmidos-initialize_db --zip-file fileb://lambda_deploy/deployment_package.zip --profile jrojo
 	pwd
 
 

@@ -87,7 +87,19 @@ Feel free to add more details about the project in the sections above.
 (same vpc).
    4.1 go to the query editor and create the database: CREATE DATABASE my_database;
 
-5.
+5. allowing the api to handle images/pngs:
+
+   1. Navigate to the API Gateway console.
+   2. Select your API (I assume it's relappmidos2).
+   3. In the left menu, under your API, click on Settings.
+   4. Scroll down to the Binary Media Types section.
+   5. Click Add Binary Media Type and enter image/png.
+   6. Click Save Changes.
+   7. Finally, you must redeploy your API for the changes to take effect. Click on Resources in the left menu, then click the
+      Actions button and select Deploy API. Choose your deployment stage (e.g., prod) and click Deploy.
+
+
+
 
 ## regarding permissions in aws:
 
@@ -189,5 +201,14 @@ aws ec2 describe-security-groups \
 
 10. **test options endpoint**
   ```bash
- curl -i -X OPTIONS "https://d63ojp7jad.execute-api.eu-west-1.amazonaws.com/prod/user/users" -H "Origin: http://localhost:8000" -H "Access-Control-Request-Method: GET"  -H "Access-Control-Request-Headers: Authorization, Content-Type" -H 'accept: text/html'
+ curl -i -X OPTIONS "https://d8ml27eov6.execute-api.eu-west-1.amazonaws.com/prod/user/users" -H "Origin: http://localhost:8000" -H "Access-Control-Request-Method: GET"  -H "Access-Control-Request-Headers: Authorization, Content-Type" -H 'accept: text/html'
+  ```
+
+(this is for when user is created)
+8. **test only get enpoint**  (working)
+  ```bash
+  curl -X GET "https://d8ml27eov6.execute-api.eu-west-1.amazonaws.com/prod/user/users"  \
+  -u "jordi:1234321" \
+  -H "Origin: http://localhost:8000"  \
+  -H "Content-Type: application/json"
   ```
