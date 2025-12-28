@@ -3,14 +3,14 @@
 variable "lambda_function_arn" {
   description = "The ARN of the Lambda function."
   type        = string
-  default     = "arn:aws:lambda:eu-west-1:617961504899:function:relappmidos2" # Default to the existing Lambda ARN
+  default     = "arn:aws:lambda:${var.aws_region}:${var.aws_account_id}:function:${var.app_name}" # Default to the existing Lambda ARN
 }
 
 # --- API Gateway ---
 
-resource "aws_api_gateway_rest_api" "relappmidos" {
-  name        = "relappmidos"
-  description = "relappmidos API"
+resource "aws_api_gateway_rest_api" "default" {
+  name        = var.app_name
+  description = "${var.app_name} API"
 
   endpoint_configuration {
     types = ["REGIONAL"]
@@ -18,40 +18,40 @@ resource "aws_api_gateway_rest_api" "relappmidos" {
 }
 
 resource "aws_api_gateway_resource" "proxy" {
-  rest_api_id = aws_api_gateway_rest_api.relappmidos.id
-  parent_id   = aws_api_gateway_rest_api.relappmidos.root_resource_id
+  rest_api_id = aws_api_gateway_rest_api.default.id
+  parent_id   = aws_api_gateway_rest_api.default.root_resource_id
   path_part   = "{proxy+}"
 }
 
 # --- ANY Method ---
 
 resource "aws_api_gateway_method" "proxy_any" {
-  rest_api_id   = aws_api_gateway_rest_api.relappmidos.id
+  rest_api_id   = aws_api_gateway_rest_api.default.id
   resource_id   = aws_api_gateway_resource.proxy.id
   http_method   = "ANY"
   authorization = "NONE"
 }
 
 resource "aws_api_gateway_integration" "proxy_any" {
-  rest_api_id = aws_api_gateway_rest_api.relappmidos.id
+  rest_api_id = aws_api_gateway_rest_api.default.id
   resource_id = aws_api_gateway_resource.proxy.id
   http_method = aws_api_gateway_method.proxy_any.http_method
   type        = "AWS_PROXY"
   integration_http_method = "POST"
-  uri         = "arn:aws:apigateway:eu-west-1:lambda:path/2015-03-31/functions/${var.lambda_function_arn}/invocations"
+  uri         = "arn:aws:apigateway:${var.aws_region}:lambda:path/2015-03-31/functions/${var.lambda_function_arn}/invocations"
 }
 
 # --- OPTIONS Method for CORS ---
 
 resource "aws_api_gateway_method" "proxy_options" {
-  rest_api_id   = aws_api_gateway_rest_api.relappmidos.id
+  rest_api_id   = aws_api_gateway_rest_api.default.id
   resource_id   = aws_api_gateway_resource.proxy.id
   http_method   = "OPTIONS"
   authorization = "NONE"
 }
 
 resource "aws_api_gateway_integration" "proxy_options" {
-  rest_api_id = aws_api_gateway_rest_api.relappmidos.id
+  rest_api_id = aws_api_gateway_rest_api.default.id
   resource_id = aws_api_gateway_resource.proxy.id
   http_method = aws_api_gateway_method.proxy_options.http_method
   type        = "MOCK"
@@ -62,7 +62,7 @@ resource "aws_api_gateway_integration" "proxy_options" {
 }
 
 resource "aws_api_gateway_method_response" "proxy_options_200" {
-  rest_api_id = aws_api_gateway_rest_api.relappmidos.id
+  rest_api_id = aws_api_gateway_rest_api.default.id
   resource_id = aws_api_gateway_resource.proxy.id
   http_method = aws_api_gateway_method.proxy_options.http_method
   status_code = "200"
@@ -79,7 +79,7 @@ resource "aws_api_gateway_method_response" "proxy_options_200" {
 }
 
 resource "aws_api_gateway_integration_response" "proxy_options_200" {
-  rest_api_id = aws_api_gateway_rest_api.relappmidos.id
+  rest_api_id = aws_api_gateway_rest_api.default.id
   resource_id = aws_api_gateway_resource.proxy.id
   http_method = aws_api_gateway_method.proxy_options.http_method
   status_code = aws_api_gateway_method_response.proxy_options_200.status_code
@@ -97,26 +97,26 @@ resource "aws_api_gateway_integration_response" "proxy_options_200" {
 
 # --- ANY method for root resource ---
 resource "aws_api_gateway_method" "root_any" {
-  rest_api_id   = aws_api_gateway_rest_api.relappmidos.id
-  resource_id   = aws_api_gateway_rest_api.relappmidos.root_resource_id
+  rest_api_id   = aws_api_gateway_rest_api.default.id
+  resource_id   = aws_api_gateway_rest_api.default.root_resource_id
   http_method   = "ANY"
   authorization = "NONE"
 }
 
 resource "aws_api_gateway_integration" "root_any" {
-  rest_api_id             = aws_api_gateway_rest_api.relappmidos.id
-  resource_id             = aws_api_gateway_rest_api.relappmidos.root_resource_id
+  rest_api_id             = aws_api_gateway_rest_api.default.id
+  resource_id             = aws_api_gateway_rest_api.default.root_resource_id
   http_method             = aws_api_gateway_method.root_any.http_method
   type                    = "AWS_PROXY"
   integration_http_method = "POST"
-  uri                     = "arn:aws:apigateway:eu-west-1:lambda:path/2015-03-31/functions/${var.lambda_function_arn}/invocations"
+  uri                     = "arn:aws:apigateway:${var.aws_region}:lambda:path/2015-03-31/functions/${var.lambda_function_arn}/invocations"
 }
 
 
 # --- Deployment and Stage ---
 
-resource "aws_api_gateway_deployment" "relappmidos" {
-  rest_api_id = aws_api_gateway_rest_api.relappmidos.id
+resource "aws_api_gateway_deployment" "default" {
+  rest_api_id = aws_api_gateway_rest_api.default.id
 
   triggers = {
     redeployment = sha1(jsonencode([
@@ -138,8 +138,8 @@ resource "aws_api_gateway_deployment" "relappmidos" {
 }
 
 resource "aws_api_gateway_stage" "prod" {
-  deployment_id = aws_api_gateway_deployment.relappmidos.id
-  rest_api_id   = aws_api_gateway_rest_api.relappmidos.id
+  deployment_id = aws_api_gateway_deployment.default.id
+  rest_api_id   = aws_api_gateway_rest_api.default.id
   stage_name    = "prod"
 
   access_log_settings {
@@ -151,7 +151,7 @@ resource "aws_api_gateway_stage" "prod" {
 # --- Logging ---
 
 resource "aws_cloudwatch_log_group" "api_gateway_logs" {
-  name              = "/aws/api-gateway/api-gateway-relappmidos2"
+  name              = "/aws/api-gateway/api-gateway-${var.app_name}"
   retention_in_days = 7
 }
 
@@ -177,7 +177,7 @@ resource "aws_iam_role_policy_attachment" "api_gateway_logging_policy" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs"
 }
 
-resource "aws_api_gateway_account" "relappmidos" {
+resource "aws_api_gateway_account" "default" {
   cloudwatch_role_arn = aws_iam_role.api_gateway_logging_role.arn
 }
 
@@ -190,7 +190,7 @@ resource "aws_lambda_permission" "api_gw" {
 
   # The "/*/*" portion grants access from any method on any resource
   # within the API Gateway REST API.
-  source_arn = "${aws_api_gateway_rest_api.relappmidos.execution_arn}/*/*"
+  source_arn = "${aws_api_gateway_rest_api.default.execution_arn}/*/*"
 }
 
 output "invoke_url" {

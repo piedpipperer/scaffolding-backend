@@ -66,7 +66,6 @@ handler = tell_me_handler(app)
 
 app.include_router(user.router)
 app.include_router(google_auth.router)
-# app.include_router(count_relappmidos.router)
 
 
 def lambda_handler(event, context):

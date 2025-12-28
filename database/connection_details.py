@@ -5,7 +5,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 from functools import lru_cache
 
-DATABASE_NAME = "relappmidos"
+DATABASE_NAME = get_env_var("APP_NAME")
 
 
 @lru_cache()

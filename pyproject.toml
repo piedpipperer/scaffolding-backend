@@ -1,8 +1,8 @@
 
 [tool.poetry]
-name = "relappmidos-backend"
+name = "scaffolding-backend"
 version = "0.1.0"
-description = "relappmidos-backend"
+description = "scaffolding-backend"
 authors = ["Your Name <you@example.com>"]
 
 [tool.poetry.dependencies]
@@ -20,7 +20,7 @@ fastapi-limiter = "^0.1.6"
 # google = "^3.0.0"
 # httpx = "^0.28.1"
 captcha = "^0.7.1"
-dotenv = "^0.9.9"
+python-dotenv = "^0.21.0"
 google-auth = "^2.41.1"
 pyjwt = "^2.10.1"
 requests = "^2.28.2"

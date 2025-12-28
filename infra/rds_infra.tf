@@ -1,17 +1,5 @@
 # rds_infra.tf
 
-variable "db_name" {
-  description = "The name of the database."
-  type        = string
-  default     = "relappmidos"
-}
-
-variable "db_username" {
-  description = "The master username for the database."
-  type        = string
-  default     = "relappmidosuser"
-}
-
 # --- Data Sources (to reference existing resources from networking_infra.tf) ---
 
 data "aws_subnets" "private" {
@@ -58,8 +46,8 @@ resource "aws_rds_cluster" "main" {
   engine_mode             = "provisioned"
   enable_http_endpoint    = true
   engine_version          = "15.12"
-  database_name           = var.db_name
-  master_username         = var.db_username
+  database_name           = var.app_name
+  master_username         = "${var.app_name}user"
   master_password         = random_password.db_password.result
   db_subnet_group_name    = aws_db_subnet_group.main.name
   vpc_security_group_ids  = [data.aws_security_group.rds.id]
@@ -103,7 +91,7 @@ resource "aws_secretsmanager_secret" "rds_credentials" {
 resource "aws_secretsmanager_secret_version" "rds_credentials_version" {
   secret_id     = aws_secretsmanager_secret.rds_credentials.id
   secret_string = jsonencode({
-    username = var.db_username,
+    username = "${var.app_name}user",
     password = random_password.db_password.result,
     engine   = "aurora-postgresql", # Changed to aurora-postgresql
     host     = aws_rds_cluster.main.endpoint, # Changed to cluster endpoint

@@ -33,12 +33,12 @@ Below are the steps to set up and test the application locally, as well as instr
 4. **Start the FastAPI server**
   Use the following command to start the development server:
   ```bash
-  uvicorn tiny_relappmidos:app --reload
+  uvicorn main:app --reload
   ```
-  > **Note:** `tiny_relappmidos` is the name of the file containing the FastAPI app.
+  > **Note:** `main` is the name of the file containing the FastAPI app.
 
 5. **Run the fastapi app in local:**
-  uvicorn tiny_relappmidos:app --reload
+  uvicorn main:app --reload
 
 6. **Test the API endpoint**
   You can test the API using `curl`:

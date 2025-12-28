@@ -1,7 +1,7 @@
 
 // const API_BASE = "http://localhost:8000"; // adjust to your FastAPI URL
 import { updateUIForLoggedIn } from './ui.js';
-const API_BASE_URL = "https://d8ml27eov6.execute-api.eu-west-1.amazonaws.com/prod";
+import { API_BASE_URL } from './env.js';
 
 export async function fetchAndDisplayCaptcha(captchaImage) {
     try {

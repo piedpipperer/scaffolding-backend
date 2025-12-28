@@ -24,21 +24,21 @@ You can test the API using `curl`:
 https://d63ojp7jad.execute-api.eu-west-1.amazonaws.com/prod
 
 aws ec2 describe-network-interfaces \
-  --filters "Name=description,Values=*relappmidos2*" \
+  --filters "Name=description,Values=*[APP_NAME]*" \
   --query "NetworkInterfaces[*].{ENI:NetworkInterfaceId,Subnet:SubnetId,PrivateIp:PrivateIpAddress,Status:Status}" \
   --profile jrojo
 
 
 # enabl logs in api gateway:
 aws logs create-log-group \
-  --log-group-name /aws/apigateway/relappmidos-prod \
+  --log-group-name /aws/apigateway/[APP_NAME]-prod \
   --profile jrojo
 
 aws apigatewayv2 update-stage \
   --api-id d63ojp7jad \
   --stage-name prod \
   --access-log-settings '{
-      "DestinationArn": "arn:aws:logs:eu-west-1:617961504899:log-group:/aws/apigateway/relappmidos-prod",
+      "DestinationArn": "arn:aws:logs:eu-west-1:617961504899:log-group:/aws/apigateway/[APP_NAME]-prod",
       "Format": "$context.requestId $context.httpMethod $context.path $context.status $context.error.message"
   }' \
   --profile jrojo
@@ -47,7 +47,7 @@ aws apigatewayv2 update-stage \
   --api-id d63ojp7jad \
   --stage-name prod \
   --access-log-settings '{
-    "DestinationArn": "arn:aws:logs:eu-west-1:617961504899:log-group:/aws/apigateway/relappmidos-prod",
+    "DestinationArn": "arn:aws:logs:eu-west-1:617961504899:log-group:/aws/apigateway/[APP_NAME]-prod",
     "Format": "{\"requestId\":\"$context.requestId\",\"ip\":\"$context.identity.sourceIp\",\"httpMethod\":\"$context.httpMethod\",\"routeKey\":\"$context.routeKey\",\"path\":\"$context.path\",\"status\":\"$context.status\",\"integrationError\":\"$context.integrationErrorMessage\",\"error\":\"$context.error.message\",\"errorResponseType\":\"$context.error.responseType\"}"
   }' \
   --profile jrojo
@@ -63,7 +63,7 @@ aws ec2 authorize-security-group-ingress \
 
 # add permission
 aws lambda add-permission \
-  --function-name relappmidos2 \
+  --function-name [APP_NAME] \
   --statement-id apigateway-prod \
   --action lambda:InvokeFunction \
   --principal apigateway.amazonaws.com \
@@ -85,7 +85,7 @@ aws apigateway get-method \
 
 # for the captcha!
 
-curl -i -X OPTIONS  
+curl -i -X OPTIONS
 
 user/captcha   -H "Origin: http://localhost:5501"      -H "Access-Control-Request-Method: GET"      -H "Access-Control-Request-Headers: Authorization, Content-Type"
  -H 'accept: text/html'
