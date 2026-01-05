@@ -51,11 +51,13 @@ resource "aws_rds_cluster" "main" {
   master_password         = random_password.db_password.result
   db_subnet_group_name    = aws_db_subnet_group.main.name
   vpc_security_group_ids  = [data.aws_security_group.rds.id]
-  skip_final_snapshot     = true
-  apply_immediately       = true # For faster deployment during testing
+i   skip_final_snapshot     = false
+  backup_retention_period = 7 # Retain 7 days of daily snapshots
+  preferred_backup_window = "02:00-03:00" # Daily backups between 2 AM and 3 AM UTC
+  apply_immediately       = true
 
   serverlessv2_scaling_configuration {
-    min_capacity = 0.5
+    min_capacity = 0
     max_capacity = 16
   }
 
