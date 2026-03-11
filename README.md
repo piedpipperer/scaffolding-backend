@@ -33,12 +33,12 @@ Below are the steps to set up and test the application locally, as well as instr
 4. **Start the FastAPI server**
   Use the following command to start the development server:
   ```bash
-  uvicorn tiny_relappmidos:app --reload
+  uvicorn main:app --reload
   ```
-  > **Note:** `tiny_relappmidos` is the name of the file containing the FastAPI app.
+  > **Note:** `main` is the name of the file containing the FastAPI app.
 
 5. **Run the fastapi app in local:**
-  uvicorn tiny_relappmidos:app --reload
+  uvicorn main:app --reload
 
 6. **Test the API endpoint**
   You can test the API using `curl`:
@@ -201,13 +201,13 @@ aws ec2 describe-security-groups \
 
 10. **test options endpoint**
   ```bash
- curl -i -X OPTIONS "https://d8ml27eov6.execute-api.eu-west-1.amazonaws.com/prod/user/users" -H "Origin: http://localhost:8000" -H "Access-Control-Request-Method: GET"  -H "Access-Control-Request-Headers: Authorization, Content-Type" -H 'accept: text/html'
+ curl -i -X OPTIONS "https://jd6t3c006e.execute-api.eu-west-1.amazonaws.com/prod/user/users" -H "Origin: http://localhost:8000" -H "Access-Control-Request-Method: GET"  -H "Access-Control-Request-Headers: Authorization, Content-Type" -H 'accept: text/html'
   ```
 
 (this is for when user is created)
 8. **test only get enpoint**  (working)
   ```bash
-  curl -X GET "https://d8ml27eov6.execute-api.eu-west-1.amazonaws.com/prod/user/users"  \
+  curl -X GET "https://jd6t3c006e.execute-api.eu-west-1.amazonaws.com/prod/user/users"  \
   -u "jordi:1234321" \
   -H "Origin: http://localhost:8000"  \
   -H "Content-Type: application/json"
