@@ -1,28 +1,43 @@
 from contextlib import contextmanager
-from config.conf import get_db_secret, get_env_var, is_running_in_lambda
+from config.conf import get_env_var
 
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 from functools import lru_cache
 
-DATABASE_NAME = get_env_var("APP_NAME")
-
 
 @lru_cache()
 def get_database_url() -> str:
-    # PostgreSQL database URL configuration
-    if is_running_in_lambda():
-        json_credents = get_db_secret()
-        database_url = (
-            f"postgresql://{json_credents['username']}:"
-            f"{json_credents['password']}@troubleshoot-db-cluster.cluster-c37doy3ngxpp.eu-west-1"
-            f".rds.amazonaws.com:5432/{DATABASE_NAME}"
-        )
-        # database had to be created from the query editor in aws-rds.
-    else:
-        database_url = f"postgresql://{get_env_var('PG_USER')}:{get_env_var('PG_PWD')}@localhost:5432/{DATABASE_NAME}"
+    """
+    Get the database URL from environment variables.
+    Supports:
+      1. Direct connection URL: DATABASE_URL or NEON_DATABASE_URL
+      2. Discrete environment variables:
+         DB_USER (or PG_USER), DB_PASSWORD (or PG_PWD/PG_PASSWORD),
+         DB_HOST (or PG_HOST), DB_PORT (or PG_PORT), DB_NAME (or APP_NAME),
+         and optional DB_SSLMODE (e.g. 'require' for Neon)
+    """
+    # 1. Full connection string (e.g. Neon connection string)
+    db_url = get_env_var("DATABASE_URL") or get_env_var("NEON_DATABASE_URL")
+    if db_url:
+        return db_url
 
-    return database_url
+    # 2. Discrete environment variables
+    user = get_env_var("DB_USER") or get_env_var("PG_USER", "postgres")
+    pwd = (
+        get_env_var("DB_PASSWORD")
+        or get_env_var("PG_PWD")
+        or get_env_var("PG_PASSWORD", "postgres")
+    )
+    host = get_env_var("DB_HOST") or get_env_var("PG_HOST", "localhost")
+    port = get_env_var("DB_PORT") or get_env_var("PG_PORT", "5432")
+    db_name = get_env_var("DB_NAME") or get_env_var("APP_NAME", "scaffolding")
+    sslmode = get_env_var("DB_SSLMODE")
+
+    base_url = f"postgresql://{user}:{pwd}@{host}:{port}/{db_name}"
+    if sslmode:
+        base_url = f"{base_url}?sslmode={sslmode}"
+    return base_url
 
 
 @contextmanager

@@ -1,19 +1,12 @@
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from sqlalchemy import create_engine
-from config.conf import HEADERS, is_running_in_lambda
+from config.conf import HEADERS
 from database.connection_details import get_database_url
 from routes import google_auth, user
-from mangum import Mangum
 from sqlalchemy.orm import sessionmaker
 from contextlib import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
-
-
-def tell_me_handler(app: FastAPI):
-    if not is_running_in_lambda():
-        return None
-    return Mangum(app)
 
 
 # Global variables for the database engine and session factory
@@ -62,17 +55,15 @@ async def handle_options(request: Request):
     return JSONResponse(content={"message": "CORS preflight response"}, status_code=200, headers=headers)
 
 
-handler = tell_me_handler(app)
-
 app.include_router(user.router)
 app.include_router(google_auth.router)
 
 
-def lambda_handler(event, context):
-    # Extract the path from the event object for logging
-    # The structure of the event object can vary depending on the Lambda trigger.
-    # For API Gateway proxy integration, the path is usually in event['path'] or event['requestContext']['path']
-    path = event.get("path", "N/A")
-    http_method = event.get("httpMethod", "N/A")
-    print(f"Calling endpoint: {http_method} {path}")
-    return handler(event, context)  # type: ignore
+# Cloudflare Workers Python ASGI entrypoint
+try:
+    from workers import asgi
+
+    Default = asgi.entrypoint(app)
+except ImportError:
+    # Running locally or via uvicorn
+    Default = None
